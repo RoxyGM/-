@@ -1,0 +1,28 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 1200px 800px at 15% -10%, rgba(212, 175, 55, 0.06), transparent 60%),
+    var(--color-bg);
+}
+
+.app__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.map-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+@media (max-width: 860px) {
+  .app__body {
+    flex-direction: column;
+  }
+}
