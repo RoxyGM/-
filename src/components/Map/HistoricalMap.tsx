@@ -15,12 +15,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Хендлер для автоматического перерасчета размеров контейнера карты на телефоне
 function MapResizeHandler() {
   const map = useMap();
 
   useEffect(() => {
-    // Небольшой таймаут гарантирует, что DOM и Flexbox на мобиле уже окончательно встали на свои места
     const timer = setTimeout(() => {
       map.invalidateSize();
     }, 250);
@@ -61,6 +59,15 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      {/* CSS-фильтр превращает стандартные светлые тайлы в крутой темный режим без каких-либо ключей */}
+      <style>
+        {`
+          .leaflet-tile-pane {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+          }
+        `}
+      </style>
+
       <MapContainer
         center={[48.0196, 66.9237]}
         zoom={5}
@@ -69,8 +76,8 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
         <MapResizeHandler />
 
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {activeTerritories.map((territory) => {
