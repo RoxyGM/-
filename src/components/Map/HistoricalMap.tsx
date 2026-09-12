@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -14,14 +15,40 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
+// Хендлер для автоматического перерасчета размеров контейнера карты на телефоне
+function MapResizeHandler() {
+  const map = useMap();
+
+  useEffect(() => {
+    // Небольшой таймаут гарантирует, что DOM и Flexbox на мобиле уже окончательно встали на свои места
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [map]);
+
+  return null;
+}
+
 interface HistoricalMapProps {
   events: HistoricalEvent[];
-  selectedYear: number; // <-- 1. ПРИНИМАЕМ ТЕКУЩИЙ ГОД
+  selectedYear: number;
   onEventSelect?: (event: HistoricalEvent) => void;
 }
 
 export function HistoricalMap({ events, selectedYear, onEventSelect }: HistoricalMapProps) {
-  // 2. ФИЛЬТРУЕМ ТЕРРИТОРИИ: оставляем только те, что существовали в selectedYear
   const activeTerritories = (HISTORICAL_TERRITORIES || []).filter((territory) => {
     const rawTerritory = territory as HistoricalTerritory & {
       start_year?: number;
@@ -39,18 +66,18 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
         zoom={5}
         style={{ height: '100%', width: '100%', backgroundColor: '#020617' }}
       >
+        <MapResizeHandler />
+
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
 
-        {/* 3. РЕНДЕРИМ ТОЛЬКО АКТИВНЫЕ ТЕРРИТОРИИ */}
         {activeTerritories.map((territory) => {
           if (!territory.geojson) return null;
 
           return (
             <GeoJSON
-              // Key должен меняться с годом, чтобы React-Leaflet перерисовывал полигон!
               key={`${territory.id}-${selectedYear}`}
               data={territory.geojson as any}
               style={{
@@ -71,7 +98,6 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
           );
         })}
 
-        {/* РЕНДЕР БИТВ */}
         {events.map((event) => {
           let coords = event.coordinates;
           if (!coords && event.latitude !== undefined && event.longitude !== undefined) {
