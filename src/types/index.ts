@@ -9,6 +9,11 @@ export interface HistoricalSide {
   side: string;
   description: string;
 }
+export interface PeriodBookmark {
+  year: number;
+  label: string;
+  description: string;
+}
 
 export interface HistoricalEvent {
   id: string;
