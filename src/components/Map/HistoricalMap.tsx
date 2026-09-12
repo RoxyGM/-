@@ -59,7 +59,7 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      {/* CSS-фильтр превращает стандартные светлые тайлы в крутой темный режим без каких-либо ключей */}
+      {/* Превращает стандартную светлую карту в стильный тёмный режим без сторонних ключей */}
       <style>
         {`
           .leaflet-tile-pane {
