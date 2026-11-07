@@ -1,0 +1,4483 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  geojson/
+    README.md
+  favicon.svg
+src/
+  components/
+    AboutPanel/
+      AboutPanel.css
+      AboutPanel.tsx
+    BattlesList/
+      BattlesList.css
+      BattlesList.tsx
+    EventCard/
+      EventCard.css
+      EventCard.tsx
+    Filters/
+      FilterPanel.css
+      FilterPanel.tsx
+    Layout/
+      Header.css
+      Header.tsx
+    Legend/
+      Legend.css
+      Legend.tsx
+    Map/
+      BattleMarkers.tsx
+      HistoricalMap.css
+      HistoricalMap.tsx
+      TerritoryLayer.tsx
+    Timeline/
+      Timeline.css
+      Timeline.tsx
+  data/
+    events.ts
+    periods.ts
+    territories.ts
+  hooks/
+    useHistoricalData.ts
+  types/
+    index.ts
+    react-leaflet-cluster.d.ts
+  utils/
+    dateUtils.ts
+  App.css
+  App.tsx
+  index.css
+  main.tsx
+  vite-env.d.ts
+.gitignore
+index.html
+package.json
+README.md
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="public/geojson/README.md">
+# Папка для уточнённых GeoJSON-файлов
+
+Сейчас границы территорий заданы прямо в `src/data/territories.ts` как упрощённые
+приблизительные полигоны (историческая реконструкция).
+
+Когда у команды появятся более точные исторические границы (например, оцифрованные
+по атласам истории Казахстана), сюда можно добавить файлы вида:
+
+```
+kazakh-khanate.geojson
+golden-horde.geojson
+ak-orda.geojson
+moghulistan.geojson
+nogai-horde.geojson
+jungar-khanate.geojson
+russian-empire-steppe.geojson
+```
+
+И заменить поле `geojson` соответствующей записи в `src/data/territories.ts`
+на импорт из файла, например:
+
+```ts
+import kazakhKhanateGeo from '../../public/geojson/kazakh-khanate.geojson?raw';
+// ...
+geojson: JSON.parse(kazakhKhanateGeo),
+```
+
+Либо просто скопировать содержимое файла прямо в объект territories.ts.
+</file>
+
+<file path="public/favicon.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#0a0d13"/>
+  <circle cx="16" cy="16" r="12.5" stroke="#d4af37" stroke-width="1" fill="none"/>
+  <path d="M16 6 L18.8 13.2 L26 16 L18.8 18.8 L16 26 L13.2 18.8 L6 16 L13.2 13.2 Z" fill="#d4af37"/>
+</svg>
+</file>
+
+<file path="src/components/AboutPanel/AboutPanel.css">
+.about-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 24px 60px;
+}
+
+.about-panel__inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.about-panel__eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--color-gold-soft);
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.about-panel__inner h2 {
+  font-size: 28px;
+  color: var(--color-sand);
+  margin-bottom: 18px;
+}
+
+.about-panel__inner h3 {
+  font-size: 15px;
+  color: var(--color-gold-soft);
+  margin: 28px 0 10px;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+.about-panel__inner p {
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--color-text);
+  margin: 0 0 6px;
+}
+
+.about-panel__inner ul {
+  padding-left: 20px;
+  line-height: 1.8;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.about-panel__inner li {
+  margin-bottom: 4px;
+}
+
+.about-panel__placeholder {
+  color: var(--color-text-faint);
+  font-style: italic;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+</file>
+
+<file path="src/components/AboutPanel/AboutPanel.tsx">
+import React from 'react';
+
+export const AboutPanel: React.FC = () => {
+  return (
+    <div className="max-w-3xl mx-auto p-6 text-slate-200 leading-relaxed space-y-6 h-full overflow-y-auto">
+      <span className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full text-xs font-semibold">
+        Оқу жобасы
+      </span>
+      <h2 className="text-3xl font-serif font-bold text-amber-100">Жоба туралы</h2>
+      
+      <p className="text-slate-300">
+        «Қазақ тарихының атласы» — Қазақстан тарихы бойынша жасалған интерактивті веб-карта. Жобаның мақсаты — қазақ мемлекеттілігінің қалыптасуына байланысты мемлекеттер мен хандықтардың аумақтары қалай өзгергенін және әртүрлі тарихи кезеңдерде қандай негізгі оқиғалар болғанын көрсету.
+      </p>
+
+      <div className="space-y-3">
+        <h3 className="text-xl font-bold text-amber-300">Картаны қалай пайдалану керек</h3>
+        <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm">
+          <li>Экранның төменгі жағындағы уақыт шкаласынан жылды таңдаңыз — карта автоматты түрде жаңарады.</li>
+          <li>Жылдар бойынша автоматты түрде қарау үшін «Тарихты бастау» түймесін басыңыз.</li>
+          <li>Толық ақпаратты ашу үшін шайқас немесе оқиға маркерін басыңыз.</li>
+          <li>Белгілі бір оқиға түрлерін немесе мемлекеттерді көрсету үшін сол жақтағы сүзгілерді пайдаланыңыз.</li>
+        </ul>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-xl font-bold text-amber-300">Деректердің дәлдігі</h3>
+        <p className="text-sm text-slate-300">
+          Картадағы тарихи мемлекеттер мен хандықтардың шекаралары шамамен алынған реконструкция болып табылады. Көшпелі мемлекеттердің нақты шекаралары қозғалмалы болған және ғылыми пікірталастардың тақырыбы болып қала береді.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-xl font-bold text-amber-300">Технологиялар</h3>
+        <p className="text-sm text-slate-300">
+          Жоба React және TypeScript негізінде Leaflet интерактивті карта кітапханасын және OpenStreetMap базалық картографиялық қабатын пайдалану арқылы жүзеге асырылды.
+        </p>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="src/components/BattlesList/BattlesList.css">
+.battles-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px 60px;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.battles-list__header h2 {
+  font-size: 26px;
+  color: var(--color-sand);
+  margin-bottom: 6px;
+}
+
+.battles-list__header p {
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+  margin: 0 0 20px;
+}
+
+.battles-list__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.battles-list__chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.battles-list__chips button {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  transition: all 0.15s ease;
+}
+
+.battles-list__chips button:hover {
+  color: var(--color-text);
+}
+
+.battles-list__chips button.is-active {
+  border-color: var(--color-border-strong);
+  color: var(--color-gold-soft);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.battles-list__sort {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 6px 13px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+}
+
+.battles-list__table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--color-border);
+}
+
+.battles-list__row {
+  display: grid;
+  grid-template-columns: 60px 24px 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: 13px 8px;
+  text-align: left;
+  color: var(--color-text);
+  transition: background 0.12s ease;
+}
+
+.battles-list__row:hover {
+  background: rgba(212, 175, 55, 0.06);
+}
+
+.battles-list__year {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-gold-soft);
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+.battles-list__icon {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.battles-list__name {
+  font-size: 14px;
+}
+
+.battles-list__location {
+  font-size: 12px;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+}
+
+.battles-list__flag {
+  font-size: 10px;
+  color: var(--color-rust);
+  border: 1px solid rgba(192, 104, 72, 0.4);
+  border-radius: 999px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.battles-list__empty {
+  padding: 30px 8px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .battles-list { padding: 22px 16px 40px; }
+  .battles-list__row {
+    grid-template-columns: 44px 20px 1fr;
+  }
+  .battles-list__location,
+  .battles-list__flag {
+    display: none;
+  }
+}
+</file>
+
+<file path="src/components/BattlesList/BattlesList.tsx">
+import React, { useState } from 'react';
+import type { HistoricalEvent } from '../../types';
+
+interface BattlesListProps {
+  events: HistoricalEvent[];
+  onSelectEvent: (event: HistoricalEvent) => void;
+}
+
+export const BattlesList: React.FC<BattlesListProps> = ({ events = [], onSelectEvent }) => {
+  const [filterType, setFilterType] = useState<string>('all');
+  const [sortAsc, setSortAsc] = useState<boolean>(true);
+
+  // Обрабатываем фильтрацию с проверкой наличия типа
+  const filtered = events.filter((e: any) => {
+    if (filterType === 'all') return true;
+    if (filterType === 'battle') {
+      return e.type === 'battle' || e.category === 'battle' || !e.type; // если тип не указан, считаем битвой
+    }
+    return e.type === filterType;
+  });
+
+  // Сортировка по году
+  const sorted = [...filtered].sort((a: any, b: any) => {
+    const yearA = a.year || 0;
+    const yearB = b.year || 0;
+    return sortAsc ? yearA - yearB : yearB - yearA;
+  });
+
+  return (
+    <div className="max-w-5xl mx-auto p-6 text-amber-50 h-full overflow-y-auto">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-amber-200">Барлық шайқастар мен оқиғалар</h2>
+          <p className="text-sm text-slate-400 mt-1">
+            Дерекқордағы оқиғалардың толық тізімі (Барлығы: {sorted.length})
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setSortAsc(!sortAsc)}
+          className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-xs text-amber-300 hover:bg-slate-700 cursor-pointer"
+        >
+          Жыл {sortAsc ? '↑' : '↓'}
+        </button>
+      </div>
+
+      <div className="flex gap-2 mb-6">
+        <button
+          type="button"
+          onClick={() => setFilterType('all')}
+          className={`px-3 py-1 rounded-full text-xs cursor-pointer ${
+            filterType === 'all' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }`}
+        >
+          Барлығы
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilterType('battle')}
+          className={`px-3 py-1 rounded-full text-xs cursor-pointer ${
+            filterType === 'battle' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }`}
+        >
+          Шайқас
+        </button>
+      </div>
+
+      {sorted.length === 0 ? (
+        <div className="text-center py-12 text-slate-500">
+          Оқиғалар табылмады
+        </div>
+      ) : (
+        <div className="space-y-2 pb-10">
+          {sorted.map((e: any, idx) => (
+            <div
+              key={e.id || idx}
+              onClick={() => onSelectEvent(e)}
+              className="flex items-center justify-between p-3 bg-slate-900/60 border border-slate-800 rounded-lg hover:border-amber-500/50 cursor-pointer transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <span className="font-mono text-amber-400 font-bold w-16 shrink-0">{e.year} ж.</span>
+                <span className="text-amber-100 font-medium">{e.name || e.title || 'Атаусыз оқиға'}</span>
+              </div>
+              <span className="text-xs text-slate-400 shrink-0 ml-2">{e.location || e.place || ''}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+</file>
+
+<file path="src/components/EventCard/EventCard.css">
+.event-card-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.event-card-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 8, 12, 0.45);
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.event-card {
+  position: relative;
+  width: min(420px, 100%);
+  height: 100%;
+  background: var(--color-bg-panel);
+  border-left: 1px solid var(--color-border-strong);
+  padding: 26px 26px 40px;
+  overflow-y: auto;
+  box-shadow: -18px 0 40px rgba(0, 0, 0, 0.45);
+  animation: slide-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slide-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.event-card__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.event-card__close:hover {
+  color: var(--color-gold-soft);
+}
+
+.event-card__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding-right: 40px;
+}
+
+.event-card__category {
+  font-size: 11.5px;
+  color: var(--color-gold-soft);
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.event-card__flag {
+  font-size: 11px;
+  color: var(--color-rust);
+  border: 1px solid rgba(192, 104, 72, 0.4);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.event-card__title {
+  font-size: 24px;
+  color: var(--color-sand);
+  line-height: 1.25;
+  margin-bottom: 16px;
+  padding-right: 20px;
+}
+
+.event-card__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  padding: 14px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.event-card__meta-label {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-faint);
+  margin-bottom: 3px;
+}
+
+.event-card__meta-value {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.event-card__meta-value em {
+  color: var(--color-text-faint);
+  font-style: normal;
+  font-size: 11px;
+}
+
+.event-card__image {
+  width: 100%;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.event-card__section {
+  margin-bottom: 18px;
+}
+
+.event-card__section h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gold-soft);
+  margin-bottom: 6px;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+.event-card__section p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+.event-card__sides,
+.event-card__sources {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.event-card__sources a {
+  color: var(--color-gold-soft);
+}
+
+@media (max-width: 640px) {
+  .event-card {
+    width: 100%;
+  }
+}
+</file>
+
+<file path="src/components/EventCard/EventCard.tsx">
+import type { ReactNode } from 'react';
+import { CATEGORY_ICONS, CATEGORY_LABELS } from '../../types';
+import type { HistoricalEvent } from '../../types';
+import './EventCard.css';
+
+interface EventCardProps {
+  event: HistoricalEvent | null;
+  onClose: () => void;
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="event-card__section">
+      <h3 style={{ color: '#EAB308', fontSize: '0.95rem', letterSpacing: '0.05em', marginBottom: '6px', textTransform: 'uppercase' }}>
+        {title}
+      </h3>
+      <div style={{ fontSize: '0.95rem', lineHeight: '1.5', color: '#D1D5DB' }}>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+export function EventCard({ event, onClose }: EventCardProps) {
+  if (!event) return null;
+
+  // Извлечение координат (поддержка и latitude/longitude, и массива coordinates)
+  let lat = event.latitude;
+  let lng = event.longitude;
+  if ((lat === undefined || lng === undefined) && Array.isArray(event.coordinates)) {
+    lat = event.coordinates[0];
+    lng = event.coordinates[1];
+  }
+
+  const needsWarning = event.needsVerification || event.isLocationApproximate || event.isDateApproximate;
+
+  return (
+    <div className="event-card-overlay" role="dialog" aria-modal="true" aria-label={event.name}>
+      <div className="event-card-backdrop" onClick={onClose} />
+      <aside className="event-card">
+        <button className="event-card__close" onClick={onClose} aria-label="Жабу">
+          ×
+        </button>
+
+        {/* Категория */}
+        <div className="event-card__eyebrow">
+          <span className="event-card__category">
+            {CATEGORY_ICONS[event.category] || '📌'} {CATEGORY_LABELS[event.category] || event.category}
+          </span>
+        </div>
+
+        <h2 className="event-card__title">{event.name}</h2>
+
+        {/* Плашка сомнительных данных */}
+        {needsWarning && (
+          <div style={{
+            padding: '10px 14px',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(239, 68, 68, 0.15)',
+            border: '1px solid rgba(239, 68, 68, 0.4)',
+            color: '#FCA5A5',
+            fontSize: '0.85rem'
+          }}>
+            ⚠️ <strong>Тарихи дерек ескертуі:</strong> Бұл оқиғаның деректері, өтетін орны немесе датасы қосымша академикалық тексеруді талап етеді (шамамен алынған).
+          </div>
+        )}
+
+        {/* Метаданные */}
+        <div className="event-card__meta">
+          <div>
+            <span className="event-card__meta-label">ЖЫЛ</span>
+            <span className="event-card__meta-value">
+              {event.year}
+              {event.yearEnd && event.yearEnd !== event.year ? `–${event.yearEnd}` : ''}
+            </span>
+          </div>
+          {event.dateLabel && (
+            <div>
+              <span className="event-card__meta-label">КҮНІ</span>
+              <span className="event-card__meta-value">
+                {event.dateLabel}
+                {event.isDateApproximate && <em> (шамамен)</em>}
+              </span>
+            </div>
+          )}
+          {event.location && (
+            <div>
+              <span className="event-card__meta-label">ОРНЫ</span>
+              <span className="event-card__meta-value">
+                {event.location}
+                {event.isLocationApproximate && <em> (шамамен)</em>}
+              </span>
+            </div>
+          )}
+          {typeof lat === 'number' && typeof lng === 'number' && (
+            <div>
+              <span className="event-card__meta-label">КООРДИНАТТАРЫ</span>
+              <span className="event-card__meta-value">
+                {lat.toFixed(2)}, {lng.toFixed(2)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {event.imageUrl && (
+          <img className="event-card__image" src={event.imageUrl} alt={event.name} />
+        )}
+
+        {/* Участники */}
+        {Array.isArray(event.participants) && event.participants.length > 0 && (
+          <Section title="Қатысушы тараптар мен тұлғалар">
+            <p>{event.participants.join(' — ')}</p>
+          </Section>
+        )}
+
+        {/* Командующие */}
+        {event.commanders && (
+          <Section title="Қолбасшылар мен басшылар">
+            {typeof event.commanders === 'object' && !Array.isArray(event.commanders) ? (
+              <div>
+                {event.commanders.kazakh && <p><strong>Қазақ қолбасшылары:</strong> {event.commanders.kazakh.join(', ')}</p>}
+                {event.commanders.opponents && <p><strong>Қарсыластар:</strong> {event.commanders.opponents.join(', ')}</p>}
+              </div>
+            ) : (
+              <p>{(event.commanders as string[]).join(', ')}</p>
+            )}
+          </Section>
+        )}
+
+        {/* 1. Описание */}
+        {event.description && (
+          <Section title="Оқиғаның қысқаша мәні">
+            <p style={{ fontSize: '1.05rem', lineHeight: '1.6', color: '#F3F4F6' }}>
+              {event.description}
+            </p>
+          </Section>
+        )}
+
+        {/* 2. Причины */}
+        {event.cause && (
+          <Section title="1. Шайқастың / Оқиғаның себептері">
+            <p>{event.cause}</p>
+          </Section>
+        )}
+
+        {/* 3. Ход событий */}
+        {event.course && (
+          <Section title="2. Оқиғаның барысы">
+            <p>{event.course}</p>
+          </Section>
+        )}
+
+        {/* Разделение сторон */}
+        {Array.isArray(event.sides) && event.sides.length > 0 && (
+          <Section title="Тараптардың күштері мен ұстанымы">
+            <ul className="event-card__sides">
+              {event.sides.map((s, idx) => (
+                <li key={idx}>
+                  <strong>{s.side}</strong> — {s.description}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {/* 4. Итоги */}
+        {(event.result || event.outcome || event.casualties) && (
+          <Section title="3. Нәтижесі мен салдары">
+            {event.result && <p>{event.result}</p>}
+            {event.outcome && <p><strong>Қорытынды:</strong> {event.outcome}</p>}
+            {event.casualties && <p><strong>Шығындар / Деректер:</strong> {event.casualties}</p>}
+          </Section>
+        )}
+
+        {/* 5. Историческое значение */}
+        {event.significance && (
+          <Section title="4. Тарихи маңызы">
+            <p style={{ fontStyle: 'italic', color: '#E2E8F0' }}>{event.significance}</p>
+          </Section>
+        )}
+
+        {/* Источники */}
+        {Array.isArray(event.sources) && event.sources.length > 0 && (
+          <Section title="Дереккөздер мен әдебиеттер">
+            <ul className="event-card__sources">
+              {event.sources.map((s, i) => (
+                <li key={i}>
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noreferrer">
+                      {s.title}
+                    </a>
+                  ) : (
+                    s.title
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+      </aside>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/Filters/FilterPanel.css">
+.filter-panel {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--color-bg-panel);
+  border-right: 1px solid var(--color-border);
+  padding: 20px 18px 24px;
+  overflow-y: auto;
+  z-index: 25;
+}
+
+.filter-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.filter-panel__header h2 {
+  font-size: 15px;
+  color: var(--color-sand);
+}
+
+.filter-panel__mobile-close {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 20px;
+}
+
+.filter-panel__section {
+  margin-bottom: 22px;
+}
+
+.filter-panel__section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-faint);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-panel__all-link {
+  display: none;
+}
+
+.filter-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-panel__list label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--color-text);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.filter-panel__list label:hover {
+  background: rgba(212, 175, 55, 0.06);
+}
+
+.filter-panel__list input {
+  accent-color: var(--color-gold);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.filter-panel__icon {
+  width: 16px;
+  text-align: center;
+  color: var(--color-gold-soft);
+  flex-shrink: 0;
+}
+
+.filter-panel__swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.filter-panel__reset {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 9px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  transition: all 0.15s ease;
+}
+
+.filter-panel__reset:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-gold-soft);
+}
+
+@media (max-width: 860px) {
+  .filter-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: var(--shadow-panel);
+  }
+  .filter-panel.is-open {
+    transform: translateX(0);
+  }
+  .filter-panel__mobile-close {
+    display: block;
+  }
+}
+</file>
+
+<file path="src/components/Filters/FilterPanel.tsx">
+import { CATEGORY_ICONS, CATEGORY_LABELS } from '../../types';
+import type { EventCategory } from '../../types';
+import { HISTORICAL_TERRITORIES } from '../../data/territories';
+import './FilterPanel.css';
+
+interface FilterPanelProps {
+  store?: any;
+  open?: boolean;
+  onClose?: () => void;
+}
+
+const CATEGORIES: EventCategory[] = ['battle'];
+
+export function FilterPanel({ store, open = false, onClose }: FilterPanelProps) {
+  if (!store) return null;
+
+  const {
+    selectedStateIds = [],
+    toggleState,
+    resetFilters,
+    showAllEvents,
+    setShowAllEvents
+  } = store;
+
+  // Формируем список уникальных ханств/государств
+  const uniqueTerritories = Array.from(
+    new Map(HISTORICAL_TERRITORIES.map((item) => [item.stateId, item])).values()
+  );
+
+  const isStateActive = (id: string): boolean => {
+    return selectedStateIds.includes(id);
+  };
+
+  return (
+    <aside className={`filter-panel${open ? ' is-open' : ''}`}>
+      <div className="filter-panel__header">
+        <h2>Сүзгілер</h2>
+        <button className="filter-panel__mobile-close" onClick={onClose} aria-label="Сүзгілерді жабу">
+          ×
+        </button>
+      </div>
+
+      <div className="filter-panel__section">
+        <div className="filter-panel__section-title">Оқиға түрі</div>
+        <ul className="filter-panel__list">
+          {CATEGORIES.map((c) => (
+            <li key={c}>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showAllEvents}
+                  onChange={(e) => setShowAllEvents && setShowAllEvents(e.target.checked)}
+                />
+                <span className="filter-panel__icon">{CATEGORY_ICONS[c] || '⚔️'}</span>
+                {CATEGORY_LABELS[c] || 'Шайқас'}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="filter-panel__section">
+        <div className="filter-panel__section-title">Мемлекет / Кезең</div>
+        <ul className="filter-panel__list">
+          {uniqueTerritories.map((t) => (
+            <li key={t.id || t.stateId}>
+              <label className="flex items-center gap-2 cursor-pointer text-xs">
+                <input
+                  type="checkbox"
+                  checked={isStateActive(t.stateId)}
+                  onChange={() => toggleState && toggleState(t.stateId)}
+                />
+                <span className="filter-panel__swatch" style={{ background: t.color || '#f59e0b' }} />
+                {t.name || t.stateId}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <button
+        type="button"
+        className="filter-panel__reset mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded text-xs transition-colors cursor-pointer"
+        onClick={() => resetFilters && resetFilters()}
+      >
+        Сүзгілерді тазалау
+      </button>
+    </aside>
+  );
+}
+</file>
+
+<file path="src/components/Layout/Header.css">
+.header {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 24px;
+  background: linear-gradient(180deg, var(--color-bg-panel), rgba(17, 20, 28, 0.92));
+  border-bottom: 1px solid var(--color-border);
+  z-index: 40;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header__mark {
+  display: flex;
+}
+
+.header__title {
+  font-size: 19px;
+  color: var(--color-sand);
+  line-height: 1.1;
+}
+
+.header__subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.header__search {
+  position: relative;
+  flex: 1;
+  max-width: 440px;
+}
+
+.header__search input {
+  width: 100%;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  padding: 9px 34px 9px 14px;
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  transition: border-color 0.15s ease;
+}
+
+.header__search input:focus {
+  border-color: var(--color-border-strong);
+  outline: none;
+}
+
+.header__search input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.header__clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px;
+}
+
+.header__suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  box-shadow: var(--shadow-panel);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.header__suggestions li button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  text-align: left;
+}
+
+.header__suggestions li button:hover {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.header__suggestion-year {
+  color: var(--color-gold-soft);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.header__nav button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--color-text-muted);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  transition: all 0.15s ease;
+}
+
+.header__nav button:hover {
+  color: var(--color-text);
+}
+
+.header__nav button.is-active {
+  color: var(--color-gold-soft);
+  border-color: var(--color-border-strong);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.header__filters-toggle {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .header__subtitle { display: none; }
+  .header__search { order: 3; max-width: none; flex-basis: 100%; }
+  .header__filters-toggle {
+    display: inline-block;
+  }
+}
+</file>
+
+<file path="src/components/Layout/Header.tsx">
+import { useMemo, useState } from 'react';
+import type { HistoricalEvent } from '../../types';
+import './Header.css';
+
+interface HeaderProps {
+  view: 'map' | 'list' | 'about';
+  onChangeView: (view: 'map' | 'list' | 'about') => void;
+  events: HistoricalEvent[];
+  onSelectSearchResult: (event: HistoricalEvent) => void;
+  searchQuery: string;
+  onSearchQueryChange: (q: string) => void;
+  onToggleFilters: () => void;
+}
+
+export function Header({
+  view,
+  onChangeView,
+  events,
+  onSelectSearchResult,
+  searchQuery,
+  onSearchQueryChange,
+  onToggleFilters,
+}: HeaderProps) {
+  const [localQuery, setLocalQuery] = useState('');
+  const [focused, setFocused] = useState(false);
+
+  const suggestions = useMemo(() => {
+    const q = localQuery.trim().toLowerCase();
+    if (!q) return [];
+    return events
+      .filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          String(e.year).includes(q) ||
+          e.location.toLowerCase().includes(q)
+      )
+      .slice(0, 7);
+  }, [events, localQuery]);
+
+  const handlePick = (event: HistoricalEvent) => {
+    onSelectSearchResult(event);
+    setLocalQuery('');
+    setFocused(false);
+  };
+
+  return (
+    <header className="header">
+      <div className="header__brand">
+        <span className="header__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="26" height="26">
+            <circle cx="16" cy="16" r="14.5" stroke="var(--color-gold)" strokeWidth="1" fill="none" />
+            <path d="M16 4 L16 28 M4 16 L28 16" stroke="var(--color-gold)" strokeWidth="0.75" opacity="0.6" />
+            <path d="M16 8 L18.5 14 L25 16 L18.5 18 L16 24 L13.5 18 L7 16 L13.5 14 Z" fill="var(--color-gold)" />
+          </svg>
+        </span>
+        <div className="header__titles">
+          <h1 className="header__title">Қазақстан тарихының атласы</h1>
+          <p className="header__subtitle">Уақыт ағымындағы аумақтар, хандықтар мен шайқастар</p>
+        </div>
+      </div>
+
+      <div className="header__search">
+        <input
+          type="text"
+          placeholder="Шайқас атауы, жыл немесе орын бойынша іздеу…"
+          value={localQuery}
+          onChange={(e) => {
+            setLocalQuery(e.target.value);
+            onSearchQueryChange(e.target.value);
+          }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => window.setTimeout(() => setFocused(false), 150)}
+        />
+        {focused && suggestions.length > 0 && (
+          <ul className="header__suggestions">
+            {suggestions.map((s) => (
+              <li key={s.id}>
+                <button type="button" onClick={() => handlePick(s)}>
+                  <span className="header__suggestion-name">{s.name}</span>
+                  <span className="header__suggestion-year">{s.year} ж.</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {searchQuery && (
+          <button
+            className="header__clear-search"
+            type="button"
+            onClick={() => {
+              setLocalQuery('');
+              onSearchQueryChange('');
+            }}
+            aria-label="Іздеуді тазалау"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      <nav className="header__nav">
+        <button
+          type="button"
+          className={view === 'map' ? 'is-active' : ''}
+          onClick={() => onChangeView('map')}
+        >
+          Карта
+        </button>
+        <button
+          type="button"
+          className={view === 'list' ? 'is-active' : ''}
+          onClick={() => onChangeView('list')}
+        >
+          Барлық шайқастар
+        </button>
+        <button
+          type="button"
+          className={view === 'about' ? 'is-active' : ''}
+          onClick={() => onChangeView('about')}
+        >
+          Жоба туралы
+        </button>
+        {view === 'map' && (
+          <button type="button" className="header__filters-toggle" onClick={onToggleFilters}>
+            Сүзгілер
+          </button>
+        )}
+      </nav>
+    </header>
+  );
+}
+</file>
+
+<file path="src/components/Legend/Legend.css">
+.legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 28;
+  background: rgba(17, 20, 28, 0.9);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  min-width: 190px;
+  max-width: 230px;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-panel);
+}
+
+.legend--empty {
+  min-width: 200px;
+}
+
+.legend--empty p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.legend__title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-faint);
+  margin-bottom: 8px;
+}
+
+.legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--color-text);
+}
+
+.legend__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend__note {
+  margin: 10px 0 0;
+  font-size: 10.5px;
+  color: var(--color-text-faint);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+  .legend {
+    left: 12px;
+    bottom: 130px;
+    max-width: 62vw;
+  }
+}
+</file>
+
+<file path="src/components/Legend/Legend.tsx">
+import type { HistoricalTerritory } from '../../types';
+import './Legend.css';
+
+interface LegendProps {
+  territories: HistoricalTerritory[];
+}
+
+export function Legend({ territories }: LegendProps) {
+  if (territories.length === 0) {
+    return (
+      <div className="legend legend--empty">
+        <p>Для этого года на карте нет отмеченных территорий.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="legend">
+      <div className="legend__title">Территории</div>
+      <ul>
+        {territories.map((t) => (
+          <li key={t.id}>
+            <span className="legend__swatch" style={{ background: t.color }} />
+            <span className="legend__name">{t.shortName ?? t.name}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="legend__note">Границы приблизительны — историческая реконструкция</p>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/Map/BattleMarkers.tsx">
+import React from 'react';
+import { Marker, Tooltip } from 'react-leaflet';
+import L from 'leaflet';
+import { HistoricalEvent } from '../../types';
+
+interface BattleMarkersProps {
+  events: HistoricalEvent[];
+  onEventSelect: (event: HistoricalEvent) => void;
+}
+
+// Кастомные иконки для категории
+const createBattleIcon = (category: string) => {
+  let iconUrl = 'https://cdn-icons-png.flaticon.com/512/929/929429.png'; // Мечи
+  if (category === 'reform') {
+    iconUrl = 'https://cdn-icons-png.flaticon.com/512/3534/3534033.png'; // Свиток
+  } else if (category === 'diplomacy') {
+    iconUrl = 'https://cdn-icons-png.flaticon.com/512/1904/1904773.png'; // Рукопожатие
+  }
+
+  return L.divIcon({
+    className: 'custom-battle-marker',
+    html: `
+      <div style="
+        background-color: #78350F;
+        border: 2px solid #FDE68A;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      " onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+        <img src="${iconUrl}" style="width: 18px; height: 18px; filter: invert(1);" />
+      </div>
+    `,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+    popupAnchor: [0, -17],
+  });
+};
+
+export const BattleMarkers: React.FC<BattleMarkersProps> = ({ events, onEventSelect }) => {
+  return (
+    <>
+      {events.map((event) => {
+        // Поддержка разных форматов координат: [lat, lng] или { lat, lng }
+        let pos: [number, number] | null = null;
+        if (Array.isArray(event.coordinates)) {
+          pos = event.coordinates as [number, number];
+        } else if (event.coordinates && typeof event.coordinates === 'object') {
+          const { lat, lng } = event.coordinates as any;
+          if (lat !== undefined && lng !== undefined) {
+            pos = [lat, lng];
+          }
+        }
+
+        if (!pos) return null;
+
+        return (
+          <Marker
+            key={`${event.id}-${event.year}`} // KEY с добавлением года гарантирует обновление маркеров на карте
+            position={pos}
+            icon={createBattleIcon(event.category)}
+            eventHandlers={{
+              click: () => onEventSelect(event),
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -18]} opacity={0.95} permanent={false}>
+              <div className="font-sans text-xs px-1 py-0.5">
+                <span className="font-bold text-amber-900">{event.year} ж.</span> — {event.name}
+              </div>
+            </Tooltip>
+          </Marker>
+        );
+      })}
+    </>
+  );
+};
+</file>
+
+<file path="src/components/Map/HistoricalMap.css">
+/* Кастомный стиль Leaflet маркеров битв */
+.custom-battle-marker {
+  background: none;
+  border: none;
+}
+
+/* Стилизация скроллбара для списков */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 83, 9, 0.5);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 119, 6, 0.8);
+}
+
+/* Leaflet контейнер поверх фонов */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: #020617 !important;
+}
+
+/* Анимация выдвижения боковой панели */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideUpBottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.battle-drawer-container {
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 639px) {
+  .battle-drawer-container {
+    animation: slideUpBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+</file>
+
+<file path="src/components/Map/TerritoryLayer.tsx">
+import React from 'react';
+import { Polygon, Popup } from 'react-leaflet';
+import { HistoricalTerritory } from '../../types';
+
+interface TerritoryLayerProps {
+  territories: HistoricalTerritory[];
+}
+
+export const TerritoryLayer: React.FC<TerritoryLayerProps> = ({ territories }) => {
+  return (
+    <>
+      {territories.map((territory) => {
+        // Достаем массив координат из geojson или прямых coordinates
+        let rawCoords: any = territory.geojson?.geometry?.coordinates;
+
+        if (!rawCoords || !Array.isArray(rawCoords) || rawCoords.length === 0) {
+          return null;
+        }
+
+        // Если координаты обернуты по стандарту GeoJSON [[[lng, lat], ...]]
+        if (Array.isArray(rawCoords[0]) && Array.isArray(rawCoords[0][0])) {
+          rawCoords = rawCoords[0];
+        }
+
+        // Преобразуем из GeoJSON [lng, lat] в Leaflet [lat, lng]
+        const leafletPositions: [number, number][] = rawCoords
+          .filter((pt: any) => Array.isArray(pt) && pt.length >= 2)
+          .map((pt: [number, number]) => [pt[1], pt[0]]); // Переворачиваем lng/lat -> lat/lng
+
+        if (leafletPositions.length < 3) {
+          return null;
+        }
+
+        return (
+          <Polygon
+            key={`${territory.id}-${territory.startYear}-${territory.endYear}`}
+            positions={leafletPositions}
+            pathOptions={{
+              color: territory.color || '#eab308',
+              fillColor: territory.color || '#eab308',
+              fillOpacity: territory.fillOpacity ?? 0.3,
+              weight: 2,
+              dashArray: '4, 4',
+            }}
+          >
+            <Popup>
+              <div className="text-slate-900 font-sans p-1 max-w-xs">
+                <h3 className="font-bold text-sm text-amber-900">{territory.name}</h3>
+                {territory.capital && (
+                  <p className="text-xs text-slate-700 mt-1">
+                    <strong>Астанасы:</strong> {territory.capital}
+                  </p>
+                )}
+                {territory.rulers && (
+                  <p className="text-xs text-slate-700 mt-0.5">
+                    <strong>Билеушілері:</strong> {territory.rulers}
+                  </p>
+                )}
+                <p className="text-xs text-slate-500 mt-1">
+                  Кезең: {territory.startYear} — {territory.endYear} жж.
+                </p>
+              </div>
+            </Popup>
+          </Polygon>
+        );
+      })}
+    </>
+  );
+};
+</file>
+
+<file path="src/components/Timeline/Timeline.css">
+.timeline {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: min(880px, calc(100% - 40px));
+  background: rgba(17, 20, 28, 0.92);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: 14px 22px 18px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  z-index: 30;
+  animation: timeline-in 0.5s ease;
+}
+
+@keyframes timeline-in {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.timeline__current-year-badge {
+  position: absolute;
+  top: -36px;
+  transform: translateX(-50%);
+  background: var(--color-gold);
+  color: #17140a;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  white-space: nowrap;
+  transition: left 0.15s ease;
+  z-index: 10;
+}
+
+.timeline__current-year-badge::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px 4px 0;
+  border-style: solid;
+  border-color: var(--color-gold) transparent;
+  display: block;
+  width: 0;
+}
+
+.timeline__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.timeline__icon-btn {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.timeline__icon-btn:hover {
+  color: var(--color-gold-soft);
+  border-color: var(--color-border-strong);
+}
+
+.timeline__play-btn {
+  background: linear-gradient(180deg, var(--color-gold-soft), var(--color-gold));
+  color: #17140a;
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  margin: 0 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
+}
+
+.timeline__play-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
+}
+
+.timeline__play-btn.is-playing {
+  background: var(--color-bg-elevated);
+  color: var(--color-gold-soft);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: none;
+}
+
+.timeline__all-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.timeline__all-toggle input {
+  accent-color: var(--color-gold);
+}
+
+.timeline__track-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timeline__bound {
+  font-size: 11px;
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.timeline__track {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.timeline__track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.14);
+  border-radius: 3px;
+}
+
+.timeline__fill {
+  position: absolute;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gold-soft), var(--color-gold));
+  border-radius: 3px;
+  transition: width 0.15s ease;
+  pointer-events: none;
+}
+
+.timeline__bookmarks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
+}
+
+.timeline__bookmark {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  padding: 6px;
+  z-index: 2;
+}
+
+.timeline__bookmark-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-sand);
+  opacity: 0.55;
+  transition: all 0.15s ease;
+}
+
+.timeline__bookmark:hover .timeline__bookmark-dot {
+  opacity: 1;
+  transform: scale(1.4);
+  background: var(--color-gold-soft);
+}
+
+.timeline__slider {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.timeline__slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-gold-soft);
+  border: 2px solid #17140a;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  margin-top: 0;
+  cursor: grab;
+}
+
+.timeline__slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-gold-soft);
+  border: 2px solid #17140a;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  cursor: grab;
+}
+
+.timeline__slider::-webkit-slider-runnable-track {
+  height: 3px;
+  background: transparent;
+}
+
+@media (max-width: 640px) {
+  .timeline {
+    width: calc(100% - 20px);
+    bottom: 10px;
+    padding: 10px 14px 14px;
+  }
+  .timeline__all-toggle { display: none; }
+}
+</file>
+
+<file path="src/components/Timeline/Timeline.tsx">
+import React, { useEffect, useRef } from 'react';
+import './Timeline.css';
+
+interface TimelineProps {
+  selectedYear: number;
+  onYearChange: (year: number) => void;
+  isPlaying: boolean;
+  onTogglePlay: () => void;
+  showAllEvents: boolean;
+  onToggleShowAllEvents: (show: boolean) => void;
+  minYear?: number;
+  maxYear?: number;
+}
+
+export const Timeline: React.FC<TimelineProps> = ({
+  selectedYear,
+  onYearChange,
+  isPlaying,
+  onTogglePlay,
+  showAllEvents,
+  onToggleShowAllEvents,
+  minYear = 1200,
+  maxYear = 1900,
+}) => {
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isPlaying) {
+      timerRef.current = window.setInterval(() => {
+        onYearChange(selectedYear >= maxYear ? minYear : selectedYear + 1);
+      }, 800);
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPlaying, selectedYear, maxYear, minYear, onYearChange]);
+
+  return (
+    <div className="timeline-container relative z-[1000] p-4 bg-slate-900/90 border border-amber-900/40 rounded-xl backdrop-blur-md text-amber-100">
+      <div className="flex items-center justify-between gap-4 mb-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onYearChange(Math.max(minYear, selectedYear - 10))}
+            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+          >
+            «
+          </button>
+          <button
+            type="button"
+            onClick={() => onYearChange(Math.max(minYear, selectedYear - 1))}
+            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={onTogglePlay}
+            className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded flex items-center gap-2 text-sm"
+          >
+            {isPlaying ? '⏸ Тоқтату' : '▶ Тарихты бастау'}
+          </button>
+          <button
+            type="button"
+            onClick={() => onYearChange(Math.min(maxYear, selectedYear + 1))}
+            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+          >
+            ›
+          </button>
+          <button
+            type="button"
+            onClick={() => onYearChange(Math.min(maxYear, selectedYear + 10))}
+            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+          >
+            »
+          </button>
+        </div>
+
+        <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showAllEvents}
+            onChange={(e) => onToggleShowAllEvents(e.target.checked)}
+            className="rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500"
+          />
+          Барлық оқиғаларды көрсету
+        </label>
+      </div>
+
+      <div className="relative pt-6">
+        <div
+          className="absolute -top-1 transform -translate-x-1/2 bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-bold text-xs shadow-md"
+          style={{
+            left: `${((selectedYear - minYear) / (maxYear - minYear)) * 100}%`,
+          }}
+        >
+          {selectedYear} ж.
+        </div>
+        <input
+          type="range"
+          min={minYear}
+          max={maxYear}
+          value={selectedYear}
+          onChange={(e) => onYearChange(Number(e.target.value))}
+          className="w-full accent-amber-400 bg-slate-800 h-2 rounded-lg cursor-pointer"
+        />
+        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span>{minYear}</span>
+          <span>{maxYear}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="src/data/events.ts">
+import { HistoricalEvent } from '../types';
+
+export const HISTORICAL_STATES = [
+  { id: 'golden-horde', name: 'Алтын Орда', color: '#B45309' },
+  { id: 'nogai-horde', name: 'Ноғай Ордасы', color: '#047857' },
+  { id: 'shaybanid', name: 'Көшпелі өзбектер мемлекеті', color: '#6D28D9' },
+  { id: 'kazakh-khanate', name: 'Қазақ хандығы', color: '#0284C7' },
+  { id: 'dzungar', name: 'Жоңғар хандығы', color: '#DC2626' },
+  { id: 'qing', name: 'Цин империясы', color: '#D97706' },
+  { id: 'russian-empire', name: 'Ресей империясы', color: '#475569' },
+  { id: 'kokand', name: 'Қоқан хандығы', color: '#059669' },
+  { id: 'khiva', name: 'Хиуа хандығы', color: '#0891B2' },
+];
+
+export const HISTORICAL_EVENTS: HistoricalEvent[] = [
+  // I. Алтын Орданың ыдырауы және Қазақ хандығының құрылуы (XV ғ.)
+  {
+    id: 'syghanaq-1427',
+    name: 'Сығанақ түбіндегі шайқас',
+    year: 1427,
+    location: 'Сығанақ қаласының төңірегі',
+    category: 'battle',
+    stateIds: ['golden-horde', 'shaybanid'],
+    coordinates: [45.72, 65.98],
+    description: 'Алтын Орда толық ыдырап, Дешті Қыпшақ аумағында бірнеше шыңғысұрпақты әулеттің билік үшін бақталастығы шиеленіскен түста, Ақ Орда ханы Барақ пен өзбек-шайбани тайпа одағының басшысы Әбілқайыр хан арасында Сырдария бойындағы сауда-қала орталықтарына бақылау орнату мәселесі ашық қақтығысқа ұласты. Сығанақ қаласы түбінде өткен шешуші шайқаста Барақ ханның қолы жеңіске жетіп, қала мен оның маңындағы аймақ уақытша оның қол астына өтті. Дегенмен көп ұзамай Барақ хан қаза тапқаннан кейін оның мұрагерлері бірігіп билік жүргізе алмады, бұл жағдай Дешті Қыпшақтағы саяси тұрақсыздықты одан әрі тереңдетіп, түптеп келгенде Керей мен Жәнібек сұлтандардың бөлек мемлекет құру идеясына жол ашты.',
+    commanders: {
+      kazakh: ['Барақ хан'],
+      opponents: ['Әбілқайыр хан (Шайбани)']
+    },
+    casualties: 'Қос тараптан 3 000-ға жуық сарбаз қаза тапты',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'sauran-sozaq-1470',
+    name: 'Сауран мен Созақ үшін шайқастар',
+    year: 1470,
+    yearEnd: 1471,
+    location: 'Сауран және Созақ бекіністері',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [43.75, 68.35],
+    description: 'Керей мен Жәнібек хандар бастаған жас мемлекеттің Моғолстан жерінде қалыптасуынан кейін, оның экономикалық тұрақтылығы Сырдария бойындағы Сауран мен Созақ сияқты сауда-қолөнер орталықтарын иеленуге тікелей байланысты болды, ал бұл қалалар әлі де Әбілқайыр ханның мұрагерлері — шайбани сұлтандарының бақылауында қалып отырды. Мұрындық сұлтанмен бірге жасаған жорықтарында Керей мен Жәнібек хандар бекіністерге қоршау салып, ұзаққа созылған қоршаудан кейін алдымен Сауранды, содан соң Созақты басып алды. Осы жеңістің нәтижесінде жас Қазақ хандығы алғаш рет тұрақты экономикалық-сауда базасына ие болды, бұл оның одан әрі күшеюі мен көрші мемлекеттер арасында мойындалуы үшін негіз қалады.',
+    commanders: {
+      kazakh: ['Керей хан', 'Жәнібек хан', 'Мұрындық сұлтан'],
+      opponents: ['Мұхаммед Шайбани хан']
+    },
+    casualties: 'Анықталмаған, қос тараптан ауыр шығындар болды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'kasym-campaign-1508',
+    name: 'Қасым сұлтанның Шайбанилерге қарсы соғысы',
+    year: 1508,
+    location: 'Сырдарияның орта ағысы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [44.85, 65.5],
+    description: 'Мұхаммед Шайбани хан Мәуереннахрды толық бағындырғаннан кейін, Қазақ хандығын әлсірету және Сыр бойындағы қалаларды өз қол астына алу мақсатында солтүстікке қарай тонаушылық жорық ұйымдастырды. Осы қатерге қарсы Қасым сұлтан жедел түрде әскер жинап, шайбани отрядтарын Сырдарияның орта ағысында қапысыз тосқауылға алды және оларға ауыр соққы берді. Жеңілістен кейін Мұхаммед Шайбани хан біраз уақытқа солтүстік бағыттағы жоспарларынан бас тартуға мәжбүр болды, ал бұл жеңіс Қасым сұлтанның хандық ішіндегі беделі мен әскери-саяси ықпалын күрт арттырды.',
+    commanders: {
+      kazakh: ['Қасым сұлтан'],
+      opponents: ['Мұхаммед Шайбани хан']
+    },
+    casualties: 'Шайбани армиясы ауыр шығынға ұшырап шегінді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'ulytau-1510',
+    name: 'Ұлытау шайқасы',
+    year: 1510,
+    location: 'Ұлытау бөктері',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [48.65, 67.0],
+    description: '1508 жылғы жеңілістен кейін де Мұхаммед Шайбани хан Қазақ хандығын түпкілікті бағындыруды өзінің басты стратегиялық мақсаты санап, оған қарсы соңғы, ең ірі жорығын ұйымдастырды. Бұрындық хан мен Қасым сұлтан бастаған қазақ қолы Ұлытау бөктерінде дұшпанды күтпеген жерден тосыннан шабуылдап, оның негізгі күштерін толығымен дерлік талқандады. Осы күйрету Мұхаммед Шайбанидің әскери-саяси беделін түбегейлі әлсіретіп, оның сол жылы Иран шахы Исмайылмен болған соғыста жеңіліп қаза табуына жанама себеп болды, ал Қазақ хандығында билік Қасым ханға көшіп, мемлекет өз тарихындағы аумақтық және саяси жағынан ең қуатты кезеңіне аяқ басты.',
+    commanders: {
+      kazakh: ['Қасым сұлтан', 'Бұрындық хан'],
+      opponents: ['Мұхаммед Шайбани хан']
+    },
+    casualties: 'Шайбани әскерінің негізгі бөлігі жойылды',
+    outcome: 'Жеңіс'
+  },
+
+  // II. Хандықтың кеңеюі және саяси дағдарыстар (XVI ғ.)
+  {
+    id: 'mansur-invasion-1521',
+    name: 'Мансұр ханның басып кіруін тойтару',
+    year: 1521,
+    yearEnd: 1522,
+    location: 'Жетісу өңірі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [45.0, 78.4],
+    description: 'Қасым хан қайтыс болғаннан кейін хандық ішінде билік үшін өрбіген алауыздықты пайдаланғысы келген Моғолстан ханы Мансұр, әлсіреген солтүстік-шығыс шекараны басып алу мақсатында Жетісуға басқыншылық жорық жасады. Мамаш хан бастаған қазақ әскері жедел жауап қимылымен Мансұр ханның қолын кейін шегінуге мәжбүр етіп, шекараны қалпына келтірді. Осы жеңістің арқасында Жетісу аймағы, ондағы стратегиялық маңызды сауда жолдары мен қалалар Қазақ хандығының құрамында сақталып қалды, дегенмен ішкі саяси тұрақсыздық мәселесі шешілмей қала берді.',
+    commanders: {
+      kazakh: ['Мамаш хан'],
+      opponents: ['Мансұр хан']
+    },
+    casualties: 'Екі тараптан орташа шығындар тіркелді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'turkestan-1526',
+    name: 'Түркістан түбіндегі шайқас',
+    year: 1526,
+    location: 'Түркістан маңы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [43.297, 68.272],
+    description: 'Қасым ханнан кейінгі кезеңде Қазақ хандығы ішкі бытыраңқылыққа ұшырап, орталық билік әлсірегенде, Бұхара әміршісі Убайдулла хан бұл жағдайды пайдаланып, оңтүстіктегі қазақ иеліктеріне қысым жасай бастады. Тахир хан бастаған жеткіліксіз күшпен жиналған қазақ қолы Түркістан маңында бұхарлықтармен соғысқа түсіп, ауыр жеңіліске ұшырады. Осы сәтсіздіктің салдарынан хандықтың оңтүстік бекіністеріне бақылауы уақытша әлсіреп, Тахир ханның да, жалпы билеуші әулеттің де беделі күрт төмендеп, хандықтағы дағдарыс тереңдей түсті.',
+    commanders: {
+      kazakh: ['Тахир хан'],
+      opponents: ['Убайдулла хан']
+    },
+    casualties: 'Қазақ әскері ауыр шығынға ұшырады',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'nogai-battle-1537',
+    name: 'Сан-Таш шайқасы',
+    year: 1537,
+    location: 'Жайық өзені бойы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'nogai-horde'],
+    coordinates: [51.2, 51.4],
+    description: 'XVI ғасырдың 30-жылдарында Қазақ хандығы шығыстан Моғолстанмен, батыстан Ноғай Ордасымен шиеленіскен қатынаста болды, ал екі мемлекет те қазақ жерлеріне үстемдік орнатуды көздеп, әскери одаққа бірікті. Тоғым хан бастаған қазақ қолы Жайық өзені бойындағы Сан-Таста Ноғай мен Моғолстанның біріккен күштерімен шешуші шайқасқа түсіп, сан жағынан басым дұшпанға қарсы тұра алмай күйрей жеңілді, нәтижесінде Тоғым ханның өзі және 37 сұлтан қаза тапты. Бұл — Қазақ хандығы тарихындағы ең ауыр әскери-саяси апаттардың бірі болып, билеуші әулеттің қатары сиреп, елде ұзаққа созылған «уақытша дағдарыс» кезеңін тереңдетті.',
+    commanders: {
+      kazakh: ['Тоғым хан'],
+      opponents: ['Сейид-Ахмет мырза', 'Рашид султан']
+    },
+    casualties: 'Тоғым хан, 37 сұлтан және үлкен әскер қаза тапты',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'sairam-1559',
+    name: 'Сайрам түбіндегі шайқас',
+    year: 1559,
+    location: 'Сайрам бекінісі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [42.35, 69.75],
+    description: 'Тоғым хан қазасынан кейінгі дағдарыс жылдарында бөлшектеніп қалған Қазақ хандығын Хакназар хан қайтадан біріктіріп, оның негізгі мақсаттарының бірі ретінде Ташкент маңындағы шайбани сұлтандары иеленген оңтүстік қалаларды қайтаруды қойды. Хакназар хан әскері Баба сұлтанның гарнизонына қарсы Сайрам бекінісін қоршап, ұзақ шайқастан кейін оны басып алды. Сайрамның қайтарылуы Оңтүстік Қазақстанның ірі қалаларының қайтадан хандық құрамына енуіне жол ашып, Хакназар ханның билігін нығайтқан маңызды қадам болды.',
+    commanders: {
+      kazakh: ['Хакназар хан'],
+      opponents: ['Баба сұлтан']
+    },
+    casualties: 'Ташкент әскері ауыр шығынға ұшырады',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'haknazar-nogai-1568',
+    name: 'Хакназар ханның Ноғай ордасына жорығы',
+    year: 1568,
+    yearEnd: 1577,
+    location: 'Жайық пен Жем аралығы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'nogai-horde'],
+    coordinates: [47.5, 53.0],
+    description: 'XVI ғасырдың орта тұсында Ноғай Ордасының ішкі бытыраңқылыққа ұшырап, орталық биліктің әлсіреуін байқаған Хакназар хан, бұрын ноғайлар иеленген батыс өңірдегі қазақ жерлерін қайтаруды мақсат тұтты. Ұзаққа созылған жорықтар барысында қазақ әскері Ғази мырза бастаған ноғай тайпаларын бірте-бірте Жайықтың арғы бетіне ығыстырды. Нәтижесінде «Батыс Жұрт» атанған кең байтақ өлке түпкілікті Қазақ хандығының құрамына қосылып, мемлекеттің батыс шекарасы бекіді.',
+    commanders: {
+      kazakh: ['Хакназар хан'],
+      opponents: ['Ғази мырза']
+    },
+    casualties: 'Ноғай тайпалары шегінді, Батыс Қазақстан босатылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'ulytau-campaign-1582',
+    name: 'Ұлытау жорығы',
+    year: 1582,
+    location: 'Ұлытау өңірі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [48.65, 67.0],
+    description: 'Хакназар ханнан кейінгі кезеңде Ташкент пен Бұхара тағы үшін болған күрес аясында Баба сұлтан бүлігі көтеріліп, аймақтағы тұрақтылыққа қатер төндірді. Шығай хан мен оның ұлы Тәуекел сұлтан бұл жағдайды пайдаланып, Бұхара билеушісі Абдулла ханмен уақытша дипломатиялық одақ құрып, Баба сұлтанға қарсы бірлескен әскери операция жүргізді, нәтижесінде бүлікшілердің әскері толығымен талқандалды. Осы жеңіс Тәуекел сұлтанның қолбасшылық қабілетін паш етіп, оны болашақ ханнан үлкен үміт күттіретін тұлғаға айналдырды әрі Қазақ хандығының Орта Азиядағы саяси беделін арттырды.',
+    commanders: {
+      kazakh: ['Шығай хан', 'Тәуекел сұлтан'],
+      opponents: ['Баба сұлтан']
+    },
+    casualties: 'Бүлдіршін әскер толықтай талқандалды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'tashkent-1598',
+    name: 'Ташкент шайқасы',
+    year: 1598,
+    location: 'Ташкент өңірі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [41.31, 69.28],
+    description: 'XVI ғасырдың соңында Шайбани әулетінің Мәуереннахрдағы билігі әлсіреп, ішкі қырқыстар мен сарайдағы тартыстардан қажыған кезде, Тәуекел хан бұл әлсіздікті пайдаланып, ежелден қазақ саудасы мен көші-қоны үшін маңызды Ташкент қаласын азат ету жорығына аттанды. Қазақ әскері Искандер сұлтанның гарнизонын жеңіп, қаланы алды, бұл шайбани әулетінің оңтүстіктегі билігінің түпкілікті құлауына түрткі болды. Ташкенттің алынуы нәтижесінде қала кейінгі екі ғасырға жуық уақыт бойы Қазақ хандығының құрамында қалып, хандықтың ірі сауда-экономикалық орталығына айналды.',
+    commanders: {
+      kazakh: ['Тәуекел хан'],
+      opponents: ['Искандер султан']
+    },
+    casualties: 'Бұхара гарнизоны талқандалды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'samarkand-bukhara-1598',
+    name: 'Самарқан шайқасы және Бұхара қоршауы',
+    year: 1598,
+    location: 'Самарқан және Бұхара қалалары',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'shaybanid'],
+    coordinates: [39.63, 66.97],
+    description: 'Ташкентті алғаннан кейін жеңісінен рухтанған Тәуекел хан Мәуереннахрдағы шайбани иеліктерін толығымен бағындыруды мақсат етіп, Самарқан мен Бұхараға қарай тереңдетілген ауқымды жорық ұйымдастырды. Есім сұлтанмен бірлесіп жасаған соғыс қимылдары нәтижесінде Самарқан алынғанымен, Бұхараны қоршау кезінде Тәуекел хан ауыр жараланып, көп ұзамай қаза тапты. Ханның қазасынан кейін қазақ әскері шегінуге мәжбүр болды, алайда тараптар бітімге келіп, бұрын жаулап алынған Ташкент пен Түркістан қазақтардың қол астында қалуы келісілді.',
+    commanders: {
+      kazakh: ['Тәуекел хан', 'Есім сұлтан'],
+      opponents: ['Пирмухаммед хан II']
+    },
+    casualties: 'Тәуекел хан қаза тапты, бейбіт келісім жасалды',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+
+  // III. Қазақ-Бұқар соғыстары және ойрат қаупі (XVII ғ.)
+  {
+    id: 'aighyrzhar-1603',
+    name: 'Айғыржар шайқасы',
+    year: 1603,
+    location: 'Айғыржар жері, Самарқан маңы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [39.7, 66.8],
+    description: 'Тәуекел ханның қазасынан кейін Бұхара әмірлігінде билік басына келген Бақи Мұхаммед бұрын қазақтар жаулап алған Ташкент пен Түркістан аймақтарын қайтаруға тырысып, бірінші қазақ-бұқар соғысын бастады. Есім хан бастаған қазақ әскері Самарқан маңындағы Айғыржар жерінде Бұхара әскерімен қақтығысып, оны ауыр шығынға ұшыратып кейін шегінуге мәжбүр етті. Осы жеңіс Есім ханның тағын нығайтып, Сырдария бойындағы қазақ иеліктерінің тұтастығын сақтап қалды.',
+    commanders: {
+      kazakh: ['Есім хан'],
+      opponents: ['Бақи Мұхаммед']
+    },
+    casualties: 'Бұхара әскері ауыр шығынмен Самарқанға шегінді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'samarkand-1611',
+    name: 'Екінші Самарқан шайқасы',
+    year: 1611,
+    location: 'Самарқан маңы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [39.63, 66.97],
+    description: 'Аштархани әулетінің негізін қалаушы Имамқули хан Бұхара тағына отырғаннан кейін, Ташкенттің мәртебесі мен оған бақылау мәселесі қайтадан қазақ-бұқар қатынасын шиеленістірді. Есім хан мен Имамқули ханның әскерлері Самарқан маңында кезекті ірі шайқасқа түсіп, қос тарап та үлкен адам шығынына ұшырады, бірақ ешқайсысы да түпкілікті басымдыққа жете алмады. Нәтижесінде тараптар күштердің теңдігін мойындап, бұрынғы шекараны сақтауға уақытша келісім жасасты, дегенмен Ташкент мәселесі толықтай шешілмей қалды.',
+    commanders: {
+      kazakh: ['Есім хан'],
+      opponents: ['Имамқули хан']
+    },
+    casualties: 'Қос тараптан мыңдаған сарбаз қаза тапты',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+  {
+    id: 'turkestan-siege-1612',
+    name: 'Түркістан қоршауы',
+    year: 1612,
+    location: 'Түркістан қаласы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [43.297, 68.272],
+    description: 'Самарқан түбіндегі нәтижесіз шайқастан кейін де Ташкент пен Түркістанға деген талас басылмай, Имамқули хан Қазақ хандығының саяси-рухани орталығы саналатын Түркістан қаласын тікелей басып алуды жоспарлады. Есім хан қала қорғанысын жедел ұйымдастырып, бекініс қабырғасының сыртында бұхарлықтарға қарсы шайқас жүргізіп, оларды кері шегінуге мәжбүр етті. Түркістанды сақтап қалу Есім ханның астанасын және хандықтың саяси тұтастығын нығайтып, оның билігіне деген халық сенімін арттырды.',
+    commanders: {
+      kazakh: ['Есім хан'],
+      opponents: ['Имамқули хан']
+    },
+    casualties: 'Бұхар әскері ауыр шығынға ұшырады',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'samarkand-1621',
+    name: 'Үшінші Самарқан шайқасы',
+    year: 1621,
+    location: 'Ширдор жазығы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [39.65, 66.9],
+    description: 'Ұзаққа созылған қазақ-бұқар қайшылығы шарықтау шегіне жеткен кезде, Есім хан Ташкент билеушісі Тұрсын Мұхаммед ханмен уақытша әскери одақ құрып, Бұхараның негізгі әскерімен Ширдор жазығында шешуші шайқасқа шықты. Біріккен қазақ күштері Имамқули ханның армиясын толығымен дерлік талқандап, оны ауыр жеңіліске ұшыратты. Жеңілістен кейін Бұхара әмірі бітімге келуге мәжбүр болып, Қазақ хандығының оңтүстік шекарасын мойындады әрі белгілі бір мөлшерде салық төлеуге келісті, бұл Есім ханның билігінің шарықтау шегін білдірді.',
+    commanders: {
+      kazakh: ['Есім хан', 'Тұрсын Мұхаммед хан'],
+      opponents: ['Имамқули хан']
+    },
+    casualties: 'Бұхара армиясы толықтай жеңілді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'andijan-1623',
+    name: 'Әндіжан жорығы',
+    year: 1623,
+    yearEnd: 1624,
+    location: 'Ферғана алқабы, Әндіжан',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [40.78, 72.34],
+    description: 'Оңтүстік-шығыс шекарадағы сауда жолдарын қауіпсіздендіру және Ферғана өңіріндегі аштархани бектерінің ықпалын шектеу мақсатында Есім хан Әндіжанға қарай стратегиялық жорық ұйымдастырды. Жорық негізінен шекара маңындағы қақтығыстармен шектеліп, ірі шайқасқа ұласпады, дегенмен қазақ әскерінің осы аймақта белсенді әрекет етуі жергілікті билеушілерге хандықтың күшін көрсетті. Нәтижесінде Ферғана бағытындағы сауда керуен жолдары біршама қауіпсіз болып, хандықтың оңтүстік-шығыс шекарасы нығайды.',
+    commanders: {
+      kazakh: ['Есім хан'],
+      opponents: ['Аштархани бектері']
+    },
+    casualties: 'Шекаралық қақтығыстармен шектелді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'kalmyk-campaign-1627',
+    name: 'Есім ханның ойраттарға жорығы',
+    year: 1627,
+    location: 'Тарбағатай және Жетісу',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [47.0, 82.5],
+    description: 'XVII ғасырдың 20-жылдарында Жоңғар хандығы әлі құрылмаған болса да, шығыстан Тарбағатай мен Жетісу аймағына ойрат тайпаларының жаппай қоныс аударуы мен шабуылдары күшейе бастады, бұл қазақ жерлерінің шығыс шекарасына елеулі қатер төндірді. Есім хан бұл қауіпті дер кезінде бағалап, ойраттарға қарсы жазалау жорығын ұйымдастырды және оларды Алтай тауларына қарай ығыстырды. Осы жорық арқасында Жетісу мен Тарбағатайдағы қазақ ықпалы біраз уақытқа бекітіліп, Жоңғар хандығы 1635 жылы құрылғанға дейінгі аралықта шығыс шекарада уақытша тыныштық орнады.',
+    commanders: {
+      kazakh: ['Есім хан'],
+      opponents: ['Ойрат тайпа басшылары']
+    },
+    casualties: 'Ойраттар ауыр шығынмен шығысқа шегінді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'kataghan-1627',
+    name: 'Тұрсын хан бүлігі және «Қатаған қырғыны»',
+    year: 1627,
+    location: 'Ташкент қаласы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [41.31, 69.28],
+    description: 'Есім хан ойраттарға қарсы жорықта жүрген уақытты пайдаланған Ташкент билеушісі Тұрсын Мұхаммед хан Есім ханға қарсы бүлік көтеріп, оның астанасы Түркістанды шабуылдады. Есім хан жедел түрде жорықтан оралып, бүлікті аяусыз басып, Тұрсынды жойды, ал оны қолдаған қатаған руын жазалау мақсатында бірнеше басқа тайпаның арасында бөліп-тарата отырып ыдыратты. Бұл оқиға хандықтағы орталық биліктің беделін қалпына келтіргенімен, ішкі феодалдық қайшылықтардың әлі де терең екенін көрсетті.',
+    commanders: {
+      kazakh: ['Есім хан'],
+      opponents: ['Тұрсын Мұхаммед хан']
+    },
+    casualties: 'Тұрсын хан мен оның жақтастары жойылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'first-dzungar-1635',
+    name: 'Алғашқы қазақ-жоңғар соғысы',
+    year: 1635,
+    location: 'Жетісу / Тарбағатай',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [45.5, 79.5],
+    description: '1635 жылы Батыр хунтайшы бытыраңқы ойрат тайпаларын біріктіріп, Жоңғар хандығын құрғаннан кейін, жаңа мемлекет өзінің әскери әлеуетін сынау және шекараларын кеңейту мақсатында Жетісуға қарай алғашқы ірі басқыншылық жорығын жасады. Жетісуды қорғаған қазақ күштері дайын болмауы себепті ойрат әскеріне тиісті тойтарыс бере алмады, ал Жәңгір сұлтан уақытша тұтқынға түсіп қалды. Осы сәтсіздік Қазақ хандығына Жоңғар хандығының нағыз қауіп екенін көрсетіп, кейінгі онжылдықтарда орын алатын ұзаққа созылған қазақ-жоңғар соғыстарының басы болды.',
+    commanders: {
+      kazakh: ['Жәңгір сұлтан'],
+      opponents: ['Батыр контайшы']
+    },
+    casualties: 'Қазақ тарапы стратегиялық шығынға ұшырады',
+    outcome: 'Жеңіліс'
+  },
+
+  // IV. Ұлы Қазақ-Жоңғар соғысы (XVII – XVIII ғ. ортасы)
+  {
+    id: 'orbulaq-1643',
+    name: 'Орбұлақ шайқасы',
+    year: 1643,
+    location: 'Орбұлақ сайы (Жоңғар Алатауы)',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [45.1, 79.5],
+    description: 'Жоңғар хандығы күшейіп, Батыр хунтайшы Жетісу мен Түркістан өңіріне жаппай басқыншылық жорық жасаған кезде, жаңадан хан болған Жәңгір сұлтан аз ғана күшпен дұшпанның көп сандық басымдығына қарсы тұруға мәжбүр болды. Жәңгір хан бар болғаны алты жүздей мылтықты сарбазын Орбұлақ шатқалындағы табиғи бекініске орналастырып, ор қазып, дұшпанның негізгі армиясын Жалаңтөс баһадүрдің Самарқаннан келе жатқан күшейтпе әскері жеткенше бірнеше күн бойы тоқтатып тұра білді. Жалаңтөс әскерінің дер кезінде жетуі шешуші рөл атқарып, жоңғарлар ауыр шығынмен шегінді, бұл жеңіс қазақ-жоңғар соғысындағы алғашқы ірі стратегиялық табыс болып, Жоңғар экспансиясын біраз уақытқа тежеді.',
+    commanders: {
+      kazakh: ['Салқам Жәңгір хан', 'Жалаңтөс Баһадүр'],
+      opponents: ['Батыр контайшы']
+    },
+    casualties: 'Жоңғарлардан 10 000-ға жуық сарбаз мерт болды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'usharal-1652',
+    name: 'Үшарал шайқасы',
+    year: 1652,
+    location: 'Үшарал өңірі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [46.19, 80.95],
+    description: 'Орбұлақтағы жеңілістен кейін де Жоңғар хандығы қазақ жерлеріне қайта-қайта шабуыл жасаудан бас тартпай, қолбасшы Галдама ноянның басшылығымен Үшарал өңіріне тағы бір ірі жорық ұйымдастырды. Салқам Жәңгір хан бұл жолы жекпе-жекте Галдама ноянмен айқасып, соғыс барысында ауыр жарақат алып қаза тапты. Ханның қаза табуы қазақ қолының рухын әлсіретіп, Жетісуда жоңғар қысымының күшеюіне жол ашты, бұл кейінгі жылдары хандықтың осы аймақтағы ықпалының бірте-бірте әлсіреуіне себеп болды.',
+    commanders: {
+      kazakh: ['Салқам Жәңгір хан'],
+      opponents: ['Галдама ноян']
+    },
+    casualties: 'Жәңгір хан қаза тапты, қазақ қолы шегінді',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'sairam-tashkent-1681',
+    name: 'Сайрам мен Ташкентті қорғау',
+    year: 1681,
+    yearEnd: 1684,
+    location: 'Сайрам және Ташкент',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [42.35, 69.75],
+    description: 'Жоңғар хандығы тағына отырған Галдан Бошоқты ішкі жоңғар қайшылықтарын бәсеңдеткеннен кейін, сыртқы саясатта негізгі бағыт ретінде Жетісу мен Оңтүстік Қазақстанды жаулап алуды таңдап, бұл өңірге бұрын-соңды болмаған ауқымды жойқын жорық жасады. Тәуке хан бастаған қазақ күштері дұшпанның үлкен әрі жақсы қаруланған әскеріне қарсы тұра алмай, Сайрам қаласы толығымен қиратылып, мыңдаған тұрғын тұтқынға алынды, ал хан кейінге шегінуге мәжбүр болды. Бұл жеңіліс Тәуке ханды хандықтың әскери-саяси құрылымын түбегейлі қайта қарауға, соның ішінде «Жеті жарғы» заңдар жинағын әзірлеуге итермелеген факторлардың бірі болды.',
+    commanders: {
+      kazakh: ['Тәуке хан'],
+      opponents: ['Галдан Бошоқты']
+    },
+    casualties: 'Сайрам күйретілді, мыңдаған тұрғын тұтқындалды',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'ayagoz-1718',
+    name: 'Аягөз шайқасы',
+    year: 1718,
+    location: 'Аягөз өзенінің бойы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [47.97, 80.43],
+    description: 'XVIII ғасырдың басында Жоңғар хандығының Цэван Рабдан билігі тұсында қуаты шарықтап, қазақ жерлеріне қысымы күшейе түскенде, Қайып хан мен Әбілқайыр сұлтан жоңғарларға қарсы бірлескен жауап қимылын жоспарлады. Дегенмен хандар мен сұлтандар арасындағы жіктелу мен ортақ қолбасшылықтың болмауы салдарынан қазақ қолы Аягөз өзені бойында ұйымдаспай әрекет етіп, ауыр жеңіліске ұшырады. Бұл сәтсіздік үш жүздің бірігуінің қаншалықты өзекті екенін ашық көрсетіп, кейінірек 1726 жылғы Ордабасы құрылтайының шақырылуына түрткі болған маңызды сабақтардың бірі болды.',
+    commanders: {
+      kazakh: ['Әбілқайыр хан', 'Қайып хан'],
+      opponents: ['Цэван Рабдан қолбасшылары']
+    },
+    casualties: 'Қос тараптан ауыр шығындар болды',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'aqtaban-1723',
+    name: '«Ақтабан шұбырынды, Алқакөл сулама»',
+    year: 1723,
+    yearEnd: 1727,
+    location: 'Бүкіл Қазақ даласы',
+    category: 'diplomacy',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [48.0, 68.0],
+    description: 'XVIII ғасырдың басында Қазақ хандығы үш жүзге бөлініп, ортақ қолбасшылықтың болмауынан әлсіреген кезде, Жоңғар ханы Цэван Рабдан бұл әлсіздікті пайдаланып, қазақ даласына тұтқиылдан жаппай басқыншылық жорық бастады. Дайындықсыз қалған қазақ халқы жаппай көшуге мәжбүр болып, көп аймақтарды тастап, Сырдария, Самарқан, тіпті одан әрі аймақтарға босқын болып қоныс аударды, бұл кезде халықтың едәуір бөлігі аштық пен қырғыннан қаза тапты. «Ақтабан шұбырынды, Алқакөл сулама» атанған бұл ұлттық трагедия қазақ халқының тарихи жадында терең із қалдырып, сонымен бірге үш жүздің басын біріктіру қажеттілігін барлық сұлтандар мен билерге әйгілі етіп, ұлт-азаттық күрестің жаңа кезеңіне бастама болды.',
+    commanders: {
+      kazakh: ['Әбілқайыр хан', 'Бөгенбай батыр'],
+      opponents: ['Цэван Рабдан']
+    },
+    casualties: 'Халықтың басым бөлігі қырылып, босқынға айналды',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+  {
+    id: 'orqorday-1726',
+    name: 'Ордабасы құрылтайы',
+    year: 1726,
+    location: 'Ордабасы тауы',
+    category: 'diplomacy',
+    stateIds: ['kazakh-khanate'],
+    coordinates: [42.55, 68.65],
+    description: 'Ақтабан шұбырынды апатынан кейін елдің тұрақты күйреу қаупіне тап болғанын түсінген үш жүздің беделді билері мен сұлтандары ортақ қауіп-қатерге бірігіп қарсы тұру қажеттілігін сезініп, Ордабасы тауының етегінде тарихи құрылтай өткізуді ұйғарды. Жиында Төле би, Қазыбек би, Әйтеке би бастаған билер кеңесі ел ішіндегі алауыздықты тоқтатуды талап етіп, Әбілқайыр ханды біріккен қазақ жасағының бас қолбасшысы етіп сайлады. Бұл шешім хандықтың әскери-саяси ұйымдастырылуын түбегейлі өзгертіп, кейінгі жылдардағы Бұланты мен Аңырақай сияқты шешуші жеңістердің негізін қалады.',
+    commanders: {
+      kazakh: ['Әбілқайыр хан', 'Төле би', 'Қазыбек би', 'Әйтеке би'],
+      opponents: []
+    },
+    casualties: 'Саяси жиын, шығын жоқ',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+  {
+    id: 'bulanty-1728',
+    name: 'Бұланты шайқасы («Қалмақ қырылған»)',
+    year: 1728,
+    location: 'Бұланты өзені, Ұлытау',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [48.5, 66.5],
+    description: 'Ордабасы құрылтайынан кейін бірыңғай қолбасшылыққа біріккен қазақ жасағы жоңғарларға қарсы тойтарыс беруге дайындалып, Әбілқайыр хан бастаған әскер Шоно ноянның корпусына қарсы аттанды. Қанжығалы Бөгенбай мен Тайлақ батыр басшылығымен қазақ қолы дұшпанды Бұланты өзені маңындағы батпақты жерге қарай тартып әкетіп, жоңғар атты әскерін сазға отырғызып, толықтай дерлік талқандады. Осы жеңіс, халық арасында «Қалмақ қырылған» деп аталып кетті, ұзаққа созылған қазақ-жоңғар соғысында алғашқы ірі психологиялық-стратегиялық бетбұрысты жасап, қазақ жасағының рухын көтерді.',
+    commanders: {
+      kazakh: ['Әбілқайыр хан', 'Қанжығалы Бөгенбай', 'Тайлақ батыр'],
+      opponents: ['Шоно ноян']
+    },
+    casualties: 'Жоңғарлардан 10 000-нан астам сарбаз жойылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'anyraqai-1730',
+    name: 'Аңырақай шайқасы',
+    year: 1730,
+    location: 'Балқаш өңірі, Итішпес көлі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [43.86, 77.07],
+    description: 'Бұланты жеңісінен кейін жігерленген үш жүздің билері мен батырлары жоңғарлардың негізгі күштерін түпкілікті талқандау үшін бұдан да ауқымды бірлескен әскери операция жоспарлады. Әбілқайыр хан, Абылай сұлтан, Қабанбай және Бөгенбай батырлар бастаған отыз мыңдаған қазақ жасағы Балқаш көлі маңындағы Аңырақай даласында Галдан Церен қолбасшыларының әскерімен шешуші генералдық шайқасқа түсіп, оны толығымен дерлік жойды. Бұл жеңіс қазақ-жоңғар соғысындағы бетбұрыс болып, Сарыарқа мен Балқаш өңірінің басым бөлігін жоңғар үстемдігінен азат етті, дегенмен хандар арасындағы кейінгі жіктелу жеңістің толық саяси нәтижесін бекітуге кедергі келтірді.',
+    commanders: {
+      kazakh: ['Әбілқайыр хан', 'Абылай сұлтан', 'Қабанбай батыр', 'Бөгенбай батыр'],
+      opponents: ['Галдан Церен қолбасшылары']
+    },
+    casualties: 'Жоңғар армиясының негізгі құрамы жойылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'abylai-liberation-1752',
+    name: 'Абылай ханның азаттық жорықтары',
+    year: 1752,
+    yearEnd: 1756,
+    location: 'Жетісу, Алтай, Тарбағатай',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'dzungar'],
+    coordinates: [47.0, 82.0],
+    description: '1745 жылы Галдан Церен қайтыс болғаннан кейін Жоңғар хандығында мұрагерлік дағдарыс пен азамат соғысы өршіп, мемлекет ішкі қырқыстан әлсіреді. Абылай хан бұл қолайлы сәтті шебер пайдаланып, Қабанбай батырмен бірге Шығыс Қазақстан, Тарбағатай және Жетісу аймақтарын жоңғар қалдық күштерінен түпкілікті тазарту жорықтарын жүргізді. Нәтижесінде жоңғарлар қазақ жерінен толығымен ығыстырылып, бұл жеңістер Абылайдың хандық билікке келуін жеделдетіп, Қазақ хандығының шығыс шекарасын түпкілікті қалыптастырды.',
+    commanders: {
+      kazakh: ['Абылай хан', 'Қабанбай батыр'],
+      opponents: ['Дабачи', 'Амурсана']
+    },
+    casualties: 'Жоңғарлар қазақ топырағынан толық ығыстырылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'qing-wars-1756',
+    name: 'Цин империясымен соғыстар мен дипломатия',
+    year: 1756,
+    yearEnd: 1757,
+    location: 'Шығыс Қазақстан, Нұра өзені',
+    category: 'diplomacy',
+    stateIds: ['kazakh-khanate', 'qing'],
+    coordinates: [50.5, 72.5],
+    description: 'Жоңғар хандығын ішкі қырқыстан пайдаланып 1755-1758 жылдары түпкілікті жойған Цин империясы, енді өз ықпалын қазақ даласына да таратуды көздеп, Абылай хан билеген аймаққа әскерін жіберді. Абылай хан ашық шайқасқа бармай, партизандық соғыс тактикасын қолданып, Цин әскеріне күтпеген шабуылдар жасап, оны ірі жеңіліске жеткізбей-ақ шаршатты. Күш теңгеруге қол жеткізе алмаған екі тарап соғыс орнына дипломатиялық қатынасқа көшіп, Абылай хан белгілі бір дәрежеде Цинге, сондай-ақ Ресейге де тәуелділік танытатын екіжақты вассалитет саясатын жүргізіп, осылайша хандықтың тәуелсіздігін ұзақ уақыт сақтап қалуға қол жеткізді.',
+    commanders: {
+      kazakh: ['Абылай хан', 'Баян батыр'],
+      opponents: ['Хадаха', 'Чжао Хой']
+    },
+    casualties: 'Цин әскері шығынға ұшырап, бейбіт келіссөз басталды',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+  {
+    id: 'dusty-campaign-1771',
+    name: '«Шаңды жорық»',
+    year: 1771,
+    location: 'Мойынты, Балқаш бойы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [47.13, 73.75],
+    description: '1771 жылы Еділ бойын мекендеген көшпелі торғауыт-қалмақтар Ресей патшалығының дәстүрлі көшу жолдары мен жайылымдарын тарылтып, хан билігін шектеу және шоқындыру саясатын күшейтуіне шыдамай, Убаши хан бастап, атамекені Жоңғарияға қарай жаппай кері көшуге шешім қабылдады, бұл заңсыз әрі рұқсатсыз үдере көшу қазақ жайлауларының үстінен өтуге тиіс болды. Абылай хан бұл жағдайды өз жерінің тұтастығына қатер деп бағалап, Әбілпейіз сұлтанмен бірге әскер жинап, қашып бара жатқан қалмақтардың жолын кесіп, оларға қарсы ұзақ қуғын-сүргін ұйымдастырды. Нәтижесінде 170 мыңдай адамнан тұратын қалмақ тобырының тек шамамен 70 000-ы ғана Жоңғарияға аман жетіп, қалғаны қазақ даласында қырғынға ұшырады немесе қазақ қоластында қалды, бұл оқиға тарихта «Шаңды жорық» деген атпен қалды.',
+    commanders: {
+      kazakh: ['Абылай хан', 'Әбілпейіз сұлтан'],
+      opponents: ['Убаши хан']
+    },
+    casualties: '170 000 қалмақтың 70 000-ы ғана аман жетті',
+    outcome: 'Жеңіс'
+  },
+
+  // V. Отаршылдыққа қарсы ұлт-азаттық күрестер (XVIII – XIX ғ.)
+  {
+    id: 'syrym-datuly-1785',
+    name: 'Сырым Датұлы көтерілісі',
+    year: 1783,
+    yearEnd: 1797,
+    location: 'Кіші жүз жері, Жайық бойы',
+    category: 'reform',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [50.5, 51.0],
+    description: '1731 жылы Кіші жүздің Ресей империясының қол астына енгеннен кейін уақыт өте келе патша үкіметі хан билігін бірте-бірте жойып, қазақ жерлерін тартып алуды және Жайық бойындағы жайылымдарды шектеуді күшейте берді, бұл жергілікті халықтың наразылығын шегіне жеткізді. Сырым Датұлы бастаған көтеріліс осы отаршылдық саясатқа қарсы бағытталып, Нұралы хан мен оны қолдаған Оренбург әкімшілігіне қарсы ұзаққа созылған партизандық күреске ұласты. Көтеріліс түпкілікті басылғанымен, патша үкіметін Игельстром жобалап, кейін жүзеге асырылған әкімшілік реформаларды енгізуге мәжбүр етіп, Кіші жүздегі хандық билік институтының болашақта толық жойылуына жол ашты.',
+    commanders: {
+      kazakh: ['Сырым Датұлы'],
+      opponents: ['Оренбург казак әскері', 'Нұралы хан']
+    },
+    casualties: 'Жазалаушы отрядтардан бейбіт ауылдар зардап шекті',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+  {
+    id: 'manash-1836',
+    name: 'Манаш қыстауындағы текетірес',
+    year: 1836,
+    location: 'Бөкей ордасы, Манаш жері',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [47.5, 49.5],
+    description: 'Бөкей Ордасында Жәңгір хан мен оны қоршаған феодалдардың жерге билігі мен халыққа салынған ауыр міндеткерліктер қарапайым қазақтардың наразылығын шегіне жеткізген кезде, Исатай Тайманұлы мен Махамбет Өтемісұлы хан билігіне ашық қарсылық көрсете бастады. Жәңгір ханның сенімді адамы Қарауылқожа Бабажанов бастаған жазалаушы отряд Манаш қыстауында Исатайды қолдаған ауылға тұтқиылдан шабуыл жасап, қарулы қақтығыс өрбіді, нәтижесінде қос тараптан да адам шығыны болды. Бұл қанды оқиға Исатай мен Жәңгір хан арасындағы жасырын қайшылықты ашық қарулы қарсыласуға айналдырып, келесі жылдары өрбитін ірі көтерілістің бастамасы болды.',
+    commanders: {
+      kazakh: ['Исатай Тайманұлы', 'Махамбет Өтемісұлы'],
+      opponents: ['Қарауылқожа Бабажанов']
+    },
+    casualties: 'Қос тараптан да адам шығыны болды',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'zhasqus-1837',
+    name: 'Жасқұс қоршауы',
+    year: 1837,
+    location: 'Хан ордасы (Жасқұс)',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [47.6, 49.7],
+    description: 'Манаштағы оқиғадан кейін Исатай Тайманұлының ықпалы күн санап артып, көтеріліс аймақтық сипаттан жалпыхандық сипатқа ауыса бастады. Исатай үш мыңдай сарбазбен Жәңгір ханның ордасы — Хан Ордасын (Жасқұс) қоршауға алып, ханды тікелей қысымға ұшыратты. Дегенмен патша үкіметінің подполковник Гекке бастаған регулярлы жазалаушы әскері жақындай бастаған соң, Исатай қоршауды алып тастап, келіссөзге бет бұрды, бұл көтерілістің ашық әскери қақтығысқа ұласуының алдын алғанымен, тараптар арасындағы қайшылықты түбегейлі шешпеді.',
+    commanders: {
+      kazakh: ['Исатай Тайманұлы'],
+      opponents: ['Жәңгір хан', 'Подполковник Гекке']
+    },
+    casualties: 'Уақытша келіссөздер жүргізілді',
+    outcome: 'Нәтижесіз / Келісім'
+  },
+  {
+    id: 'tastobe-1837',
+    name: 'Тастөбе шайқасы',
+    year: 1838,
+    location: 'Тастөбе жері',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [47.3, 50.0],
+    description: 'Жасқұс қоршауынан кейін де келіссөздер нәтиже бермеген соң, патша үкіметі Исатай көтерілісін күшпен басу шешіміне келіп, подполковник Гекке бастаған зеңбірекпен қаруланған үлкен жазалаушы отряд жіберді. Тастөбе жерінде өткен шешуші шайқаста техникалық жағынан әлдеқайда басым орыс әскері артиллериямен қазақ жасағын қатты қырғынға ұшыратты. Ауыр жеңілістен кейін Исатай Тайманұлы қалған сарбаздарымен Жайық өзенінің шығыс жағалауына, Кіші жүз жеріне шегінуге мәжбүр болды, бұл көтерілістің Бөкей Ордасынан тыс жерге ауысуына себеп болды.',
+    commanders: {
+      kazakh: ['Исатай Тайманұлы', 'Махамбет Өтемісұлы'],
+      opponents: ['Подполковник Гекке']
+    },
+    casualties: 'Көтерілісшілер ауыр шығынмен шегінді',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'aqbulaq-1838',
+    name: 'Ақбұлақ шайқасы',
+    year: 1838,
+    location: 'Ақбұлақ өзені бойы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [51.05, 55.5],
+    description: 'Тастөбеден кейін Жайықтың шығыс жағалауына шегінген Исатай Тайманұлы күш жинап, көтерілісті жалғастыруға тырысты, дегенмен патша үкіметі сұлтан Баймағамбет пен қосымша әскери күштерді жұмылдырып, оны толығымен басуды мақсат етті. Ақбұлақ өзені бойында өткен соңғы сұрапыл шайқаста Исатай батыр өзінің сексенге жуық сарбазымен бірге қаза тапты. Исатайдың қазасы Бөкей Ордасындағы көтерілістің негізгі ошағын өшірді, дегенмен оның серігі Махамбет Өтемісұлы қашып құтылып, күрес идеясын өлеңдері арқылы кейінгі ұрпаққа жеткізуді жалғастырды.',
+    commanders: {
+      kazakh: ['Исатай Тайманұлы'],
+      opponents: ['Сұлтан Баймағамбет', 'Патша отрядтары']
+    },
+    casualties: 'Исатай батыр және 80 сарбаз қаза тапты',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'akmola-1838',
+    name: 'Ақмола бекінісін басып алу',
+    year: 1838,
+    location: 'Ақмола бекінісі',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [51.169, 71.449],
+    description: '1837 жылдан бастап Ресей отаршылдығына, «Сібір қырғыздары туралы жарғыға» қарсы жалпыұлттық сипат алған Кенесары Қасымұлы бастаған көтеріліс аясында, патша үкіметінің Орта жүздегі негізгі әскери тірегі саналатын Ақмола бекінісі басты нысанаға айналды. Кенесары хан Ағыбай мен Басығара батырлармен бірге түнде күтпеген жерден шабуыл жасап, бекіністі өртеп, Карбышев пен оны қолдаған сұлтан Қоңырқұлжаның гарнизонын дерлік толық жойды. Ақмоланың алынуы Кенесары көтерілісінің ауқымын кеңейтіп, оны патша үкіметі елеулі әскери қатер ретінде қарастыруына мәжбүр етті.',
+    commanders: {
+      kazakh: ['Кенесары Қасымұлы', 'Ағыбай батыр', 'Басығара батыр'],
+      opponents: ['Карбышев', 'Сұлтан Қоңырқұлжа']
+    },
+    casualties: 'Бекініс гарнизоны дерлік жойылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'kokand-forts-1841',
+    name: 'Қоқан бекіністерін азат ету',
+    year: 1841,
+    location: 'Созақ, Жаңақорған, Жүлек',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'kokand'],
+    coordinates: [44.15, 67.87],
+    description: 'Кенесары хан солтүстікте Ресей империясымен қатар, оңтүстікте Қоқан хандығының қазақ жерлеріне жасаған зорлық-зомбылығына да қарсы күресуді жөн көріп, Наурызбай батырмен бірге Сырдария бойындағы қоқандық бекіністерге жорық ұйымдастырды. Қазақ жасағы Созақ пен Жаңақорған бекіністерінің гарнизондарын талқандап, оларды басып алды. Осы жеңістердің нәтижесінде Сырдария өңіріндегі қазақтар Қоқан хандығының ауыр салық және басқыншылық саясатынан уақытша босап, Кенесарының оңтүстіктегі беделі артты.',
+    commanders: {
+      kazakh: ['Кенесары хан', 'Наурызбай батыр'],
+      opponents: ['Қоқан бектері']
+    },
+    casualties: 'Қоқан гарнизондары талқандалды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'besqala-1843',
+    name: 'Бесқала жорығы',
+    year: 1843,
+    location: 'Сырдарияның төменгі ағысы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'kokand', 'khiva'],
+    coordinates: [44.85, 65.5],
+    description: 'Солтүстік пен оңтүстіктегі екі майданда бір мезгілде күресуге мәжбүр болған Кенесары хан, Сырдарияның төменгі ағысындағы Хиуа мен Қоқан хандықтарының шекаралық бекіністерін де тазалап, оңтүстік шекараны толық бақылауға алуды мақсат етті. «Бесқала» аймағындағы жорық барысында қазақ әскері жергілікті гарнизондарды бағындырып, бекіністерді өз қол астына қаратты. Бұл жетістік Кенесарының оңтүстіктегі саяси ықпалын күшейткенімен, оны Қоқан мен Хиуамен қатынасты шиеленістіріп, көп майданды соғыстың ауыртпалығын арттырды.',
+    commanders: {
+      kazakh: ['Кенесары хан'],
+      opponents: ['Хиуа мен Қоқан гарнизондары']
+    },
+    casualties: 'Бекіністер Қазақ хандығына бағындырылды',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'lebedev-1843',
+    name: 'Старшина Лебедев отрядын талқандау',
+    year: 1843,
+    location: 'Тобыл мен Ырғыз аралығы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [49.0, 61.0],
+    description: 'Кенесары ханның партизандық-маневрлік соғыс тактикасы кеңінен танылған кезде, патша үкіметі оны басып-жаншу үшін старшина Лебедев бастаған 1900 адамдық үлкен жазалаушы жасақ жіберді. Кенесары хан Бұқарбай батырмен бірлесіп, дұшпан отрядын Тобыл мен Ырғыз аралығындағы шөл далаға қарай тартып әкетіп, суы мен азық-түлігінен қиналтып, қоршауға алды. Лебедев отряды ауыр шығынға ұшырап, Аманқарағайға қарай шегінуге мәжбүр болды, бұл жеңіс Кенесарының соғыс тактикасының тиімділігін тағы да дәлелдеп, оның беделін одан әрі арттырды.',
+    commanders: {
+      kazakh: ['Кенесары хан', 'Бұқарбай батыр'],
+      opponents: ['Старшина Лебедев']
+    },
+    casualties: 'Орыс отряды ауыр шығынмен Аманқарағайға шегінді',
+    outcome: 'Жеңіс'
+  },
+  {
+    id: 'maitobe-1847',
+    name: 'Майтөбе шайқасы',
+    year: 1847,
+    location: 'Майтөбе шатқалы',
+    category: 'battle',
+    stateIds: ['kazakh-khanate', 'russian-empire'],
+    coordinates: [42.6, 74.9],
+    description: 'Кенесары хан көтерілісі жалғасқан сайын, оның Ұлы жүз бен қырғыз манаптарының жерлеріне қарай жылжуы Қоқан хандығы мен қырғыз тайпаларының арасында да наразылық тудырды, ал бұл жағдайды пайдаланған патша үкіметі жергілікті күштермен одақтасуды жөн көрді. Кенесары хан мен Наурызбай батыр бастаған қазақ жасағы Майтөбе шатқалында Ормон манап бастаған қырғыз күштері мен патша гарнизонының қосарланған қоршауына түсіп қалды. Ұзаққа созылған қанды қырғыннан кейін Кенесары хан, Наурызбай батыр және елуден астам сұлтан қаза тауып, бұл оқиға Қазақ хандығының соңғы ханы билігінің түпкілікті аяқталуын білдірді.',
+    commanders: {
+      kazakh: ['Кенесары хан', 'Наурызбай батыр'],
+      opponents: ['Ормон манап', 'Патша гарнизоны']
+    },
+    casualties: 'Кенесары хан, Наурызбай батыр және 50-ден астам сұлтан қаза тапты',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'aqmeshit-1853',
+    name: 'Ақмешітті орыс әскерінің алуы',
+    year: 1853,
+    location: 'Ақмешіт бекінісі (Қызылорда)',
+    category: 'battle',
+    stateIds: ['russian-empire', 'kokand'],
+    coordinates: [44.848, 65.482],
+    description: 'Орта Азиядағы ықпал аймақтарын кеңейтуге ұмтылған Ресей империясы, Сырдария бойындағы стратегиялық маңызды Ақмешіт бекінісін Қоқан хандығынан тартып алуды жоспарлап, генерал-адъютант В.Перовскийдің басшылығымен ірі әскери экспедиция ұйымдастырды. Ұзаққа созылған қоршау мен зеңбірекпен атқылаудан кейін Яқуб-бек басқарған қоқандық гарнизон беріліп, бекініс орыс әскерінің қолына өтті. Ақмешіттің алынуы Форт-Перовский деп қайта аталып, Ресей империясының Орталық Азияға тереңдей енуінің басты тірегіне айналды, бұл кейінгі отарлау процесінің жеделдеуіне түрткі болды.',
+    commanders: {
+      kazakh: ['Яқуб-бек (Қоқан)'],
+      opponents: ['Генерал-адъютант В. Перовский']
+    },
+    casualties: 'Қоқан гарнизоны талқандалды',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'qazaly-terenozeq-1856',
+    name: 'Жанқожа Нұрмұхамедұлы көтерілісі',
+    year: 1856,
+    yearEnd: 1857,
+    location: 'Қазалы және Тереңөзек',
+    category: 'battle',
+    stateIds: ['russian-empire'],
+    coordinates: [45.766, 62.106],
+    description: 'Ресей әкімшілігінің Сырдария бойында бекіністер салып, жергілікті қазақтарға ауыр салық пен міндеткерлік жүктеуі жергілікті халықтың ашық наразылығын тудырды. Жанқожа Нұрмұхамедұлы батыр бастаған қазақтар Қазалы мен Тереңөзек маңында отаршылдыққа қарсы қарулы көтеріліс бастап, жергілікті әкімшілік пен әскери бекеттерге шабуыл жасады. Майор Фитингоф бастаған жазалаушы отрядтың артиллериялық қаруының басымдығы алдында көтерілісшілер ауыр жеңіліске ұшырады, дегенмен бұл оқиға Сырдария өңіріндегі отарлық езгіге қарсы наразылықтың әлі де жалғасатынын көрсетті.',
+    commanders: {
+      kazakh: ['Жанқожа батыр'],
+      opponents: ['Майор Фитингоф']
+    },
+    casualties: 'Көтерілісшілер ауыр артиллериялық шығынға ұшырады',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'uzynagash-1860',
+    name: 'Ұзынағаш шайқасы',
+    year: 1860,
+    location: 'Ұзынағаш ауылы, Жетісу',
+    category: 'battle',
+    stateIds: ['russian-empire', 'kokand'],
+    coordinates: [43.226, 76.244],
+    description: 'Жетісу өңіріне бір мезгілде Ресей империясы да, Қоқан хандығы да үстемдік орнатуды көздеп, екі мемлекет арасында аймақ үшін ашық қарсыластық туындады. Полковник Герасим Колпаковский бастаған орыс отряды Ұзынағаш маңында Қоқан ханының қолдаушысы Қанағат-шах бастаған әскерге қарсы шешуші шайқасқа шығып, оны жеңіліске ұшыратты. Бұл жеңіс Жетісудың түпкілікті Ресей империясының қол астына өтуін жеделдетіп, Қоқан хандығының өңірдегі ықпалын түбегейлі әлсіретті.',
+    commanders: {
+      kazakh: ['Қанағат-шах (Қоқан)'],
+      opponents: ['Полковник Г. Колпаковский']
+    },
+    casualties: 'Қоқан армиясы шегінді',
+    outcome: 'Жеңіліс'
+  },
+  {
+    id: 'mangystau-1870',
+    name: 'Маңғыстау көтерілісі',
+    year: 1870,
+    location: 'Маңғыстау түбегі',
+    category: 'reform',
+    stateIds: ['russian-empire'],
+    coordinates: [44.53, 50.25],
+    description: '1868 жылы жарияланған «Уақытша ереже» дала өлкесіндегі басқару жүйесін өзгертіп, жер мен салық қатынастарын қатаңдатқан кезде, Маңғыстаудағы Адай руы бұл реформаны өз дәстүрлі құқықтарына қиянат деп қабылдап, ашық көтеріліске шықты. Досан Тажиұлы мен Иса Тіленбайұлы бастаған көтерілісшілер алдымен подполковник Рукин бастаған жазалаушы отрядты толығымен жойып, уақытша табысқа жетті. Дегенмен көп ұзамай Кавказдан қосымша күш алған патша әскері көтерілісті аяусыз басып тастап, бұл Ресей империясының дала өлкесіндегі отарлық саясатының қаталдана түсуіне жол берді.',
+    commanders: {
+      kazakh: ['Досан Тажиұлы', 'Иса Тіленбайұлы'],
+      opponents: ['Подполковник Рукин']
+    },
+    casualties: 'Рукин отряды жойылды, көтерілісшілер кейін аяусыз жазаланды',
+    outcome: 'Жеңіліс'
+  }
+];
+</file>
+
+<file path="src/data/periods.ts">
+import type { PeriodBookmark } from '../types';
+
+// Быстрые "закладки" для временной шкалы — ключевые вехи истории.
+export const periodBookmarks: PeriodBookmark[] = [
+  { year: 1242, label: '1242', description: 'Золотая Орда' },
+  { year: 1310, label: '1310', description: 'Ак-Орда' },
+  { year: 1347, label: '1347', description: 'Могулистан' },
+  { year: 1440, label: '1440', description: 'Ногайская Орда' },
+  { year: 1465, label: '1465', description: 'Казахское ханство' },
+  { year: 1634, label: '1634', description: 'Джунгарское ханство' },
+  { year: 1643, label: '1643', description: 'Орбулакская битва' },
+  { year: 1723, label: '1723', description: 'Актабан шұбырынды' },
+  { year: 1729, label: '1729', description: 'Аңырақайская битва' },
+  { year: 1731, label: '1731', description: 'Подданство Младшего жуза' },
+  { year: 1771, label: '1771', description: 'Абылай-хан' },
+  { year: 1822, label: '1822', description: 'Устав 1822 года' },
+  { year: 1847, label: '1847', description: 'Гибель Кенесары' },
+];
+
+export const TIMELINE_MIN_YEAR = 1200;
+export const TIMELINE_MAX_YEAR = 1900;
+export const DEFAULT_YEAR = 1465;
+</file>
+
+<file path="src/data/territories.ts">
+import { HistoricalTerritory } from '../types';
+
+export const HISTORICAL_TERRITORIES: HistoricalTerritory[] = [
+  // 1. Алтын Орда (1420 - 1450)
+  {
+    id: 'golden-horde-stage1',
+    stateId: 'golden-horde',
+    name: 'Алтын Орда (Ыдырау кезеңі)',
+    shortName: 'Алтын Орда',
+    startYear: 1420,
+    endYear: 1450,
+    capital: 'Сарай-Бату / Сығанақ',
+    rulers: 'Улуғ-Мұхаммед, Барақ хан',
+    description: 'Дешті-Қыпшақ пен Сырдария бойын қамтыған Алтын Орданың соңғы біртұтас кезеңдерінің бірі.',
+    color: '#B45309',
+    fillOpacity: 0.35,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Алтын Орда' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [48.0, 47.0], [53.0, 50.0], [60.0, 52.0], [66.0, 48.0],
+          [68.0, 44.0], [64.0, 41.0], [55.0, 42.0], [48.0, 47.0]
+        ]]
+      }
+    }
+  },
+
+  // 2. Ноғай Ордасы (1440 - 1580)
+  {
+    id: 'nogai-horde-stage1',
+    stateId: 'nogai-horde',
+    name: 'Ноғай Ордасы',
+    shortName: 'Ноғай Ордасы',
+    startYear: 1440,
+    endYear: 1580,
+    capital: 'Сарайшық',
+    rulers: 'Нұрадын, Едіге ұрпақтары, Исмаил мырза',
+    description: 'Волга мен Жайық аралығындағы манғыттар мен қыпшақ тайпаларының ірі мемлекеттік бірлестігі.',
+    color: '#047857',
+    fillOpacity: 0.3,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Ноғай Ордасы' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [46.0, 48.0], [50.0, 52.0], [55.0, 50.0], [54.0, 45.0],
+          [50.0, 44.0], [46.0, 48.0]
+        ]]
+      }
+    }
+  },
+
+  // 3. Әбілқайыр хандығы (1428 - 1468)
+  {
+    id: 'shaybanid-stage1',
+    stateId: 'shaybanid',
+    name: 'Әбілқайыр хандығы',
+    shortName: 'Әбілқайыр хандығы',
+    startYear: 1428,
+    endYear: 1468,
+    capital: 'Сығанақ',
+    rulers: 'Әбілқайыр хан',
+    description: 'Жайықтан Ертіске дейінгі даланы қамтыған Шайбани мұрагерлерінің мемлекеті.',
+    color: '#6D28D9',
+    fillOpacity: 0.3,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Әбілқайыр хандығы' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [52.0, 48.0], [60.0, 53.0], [70.0, 52.0], [72.0, 46.0],
+          [66.0, 43.0], [58.0, 44.0], [52.0, 48.0]
+        ]]
+      }
+    }
+  },
+
+  // 4. Қазақ хандығы - Құрылу және алғашқы кеңею (1465 - 1511)
+  {
+    id: 'kazakh-khanate-stage1',
+    stateId: 'kazakh-khanate',
+    name: 'Қазақ хандығы (Құрылу кезеңі)',
+    shortName: 'Қазақ хандығы (XV ғ.)',
+    startYear: 1465,
+    endYear: 1511,
+    capital: 'Созақ / Сығанақ',
+    rulers: 'Керей хан, Жәнібек хан, Мұрындық хан',
+    description: 'Қозыбасыда іргесі қаланып, Сырдария пен Шу-Талас өңірін біріктірген алғашқы қазақ мемлекеті.',
+    color: '#0284C7',
+    fillOpacity: 0.4,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Қазақ хандығы (1465-1511)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [72.2682695, 40.1906089],
+          [73.0529406, 40.6281274],
+          [74.6550434, 40.4102191],
+          [75.1636344, 39.556612],
+          [75.9245095, 40.1823725],
+          [77.1341727, 40.3697853],
+          [78.0763649, 41.1665821],
+          [80.4088901, 41.0666862],
+          [80.6439508, 41.9109498],
+          [80.7743596, 43.1992158],
+          [80.3951861, 44.5542172],
+          [79.949869, 44.8476995],
+          [77.0233687, 47.1248478],
+          [74.8277062, 46.8383691],
+          [73.5495821, 46.3867893],
+          [73.2334493, 45.9306206],
+          [73.7475924, 45.4201101],
+          [74.2577202, 44.8566421],
+          [73.0508623, 43.3558062],
+          [72.0201779, 43.0265476],
+          [72.2682695, 40.1906089]
+        ]]
+      }
+    }
+  },
+
+  // 5. Қазақ хандығы - Қасым хан және Хакназар хан (1512 - 1580)
+  {
+    id: 'kazakh-khanate-stage2',
+    stateId: 'kazakh-khanate',
+    name: 'Қазақ хандығы (Қасым мен Хакназар дәуірі)',
+    shortName: 'Қазақ хандығы (XVI ғ.)',
+    startYear: 1512,
+    endYear: 1580,
+    capital: 'Түркістан / Сарайшық',
+    rulers: 'Қасым хан, Хакназар хан',
+    description: '«Қасым ханның қасқа жолы». Халқы 1 миллионға жетіп, территориясы Жайықтан Ертіске дейін созылды.',
+    color: '#0284C7',
+    fillOpacity: 0.45,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Қазақ хандығы (1512-1580)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [50.614618, 51.7761448],
+          [48.5261383, 50.6298159],
+          [47.5088747, 50.433144],
+          [46.3558109, 50.0022738],
+          [46.2230696, 48.3045967],
+          [48.2639899, 45.5890745],
+          [49.8089409, 46.2476749],
+          [50.5697511, 46.8378767],
+          [51.5023259, 46.9578911],
+          [52.0816267, 46.7460938],
+          [52.5740644, 46.9274469],
+          [52.6154703, 46.7480523],
+          [52.8481663, 46.7574206],
+          [52.8601406, 46.045732],
+          [53.1141922, 45.4515483],
+          [51.8284906, 45.4262138],
+          [51.0372368, 45.2495618],
+          [50.9373064, 44.8323251],
+          [51.3406499, 44.6002942],
+          [50.2864479, 44.6531865],
+          [50.1393147, 44.4006022],
+          [50.7917068, 44.1455618],
+          [51.1712676, 43.2009397],
+          [51.5981184, 43.187185],
+          [51.8028739, 42.9108062],
+          [52.6370312, 42.7528676],
+          [52.4190675, 42.1095481],
+          [52.743939, 41.3942425],
+          [54.9335312, 40.9820081],
+          [55.9206464, 41.2574562],
+          [56.9770993, 41.1832541],
+          [56.9581449, 41.7982672],
+          [58.3796979, 42.2762029],
+          [59.8820787, 42.0325924],
+          [63.081102, 41.9900448],
+          [64.5836777, 42.2228223],
+          [65.9549361, 39.7165492],
+          [67.2219195, 39.2894261],
+          [68.3928182, 39.5714681],
+          [69.2306098, 40.0830399],
+          [69.3342617, 40.7891154],
+          [70.7077354, 40.086897],
+          [72.2682695, 40.1906089],
+          [73.0529406, 40.6281274],
+          [74.6550434, 40.4102191],
+          [75.1636344, 39.556612],
+          [75.9245095, 40.1823725],
+          [77.1341727, 40.3697853],
+          [78.0763649, 41.1665821],
+          [80.4088901, 41.0666862],
+          [80.6439508, 41.9109498],
+          [80.7743596, 43.1992158],
+          [80.3951861, 44.5542172],
+          [79.949869, 44.8476995],
+          [81.7630675, 45.2902748],
+          [82.551728, 45.1773631],
+          [82.3215793, 45.5685181],
+          [83.2102955, 47.2536931],
+          [85.5912922, 48.6420254],
+          [85.8002012, 49.9838571],
+          [84.4714154, 51.1119747],
+          [82.0698675, 51.8920708],
+          [78.7907125, 52.8576588],
+          [74.5728013, 55.1536299],
+          [70.6816423, 55.2230638],
+          [64.3898466, 54.8108673],
+          [55.5684347, 53.8449149],
+          [50.6125306, 51.7779243],
+          [50.614618, 51.7761448]
+        ]]
+      }
+    }
+  },
+
+  // 6. Қазақ хандығы - Есім хан мен Тәуке хан (1581 - 1718)
+  {
+    id: 'kazakh-khanate-stage3',
+    stateId: 'kazakh-khanate',
+    name: 'Қазақ хандығы (Есім мен Тәуке хан дәуірі)',
+    shortName: 'Қазақ хандығы (XVII ғ.)',
+    startYear: 1581,
+    endYear: 1718,
+    capital: 'Түркістан',
+    rulers: 'Есім хан, Салқам Жәңгір, Тәуке хан',
+    description: '«Есім ханның ескі жолы», «Жеті жарғы». Бұхарамен соғыстар және Жоңғар қаупінің күшеюі.',
+    color: '#0284C7',
+    fillOpacity: 0.4,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Қазақ хандығы (1581-1718)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [50.614618, 51.7761448],
+          [48.5261383, 50.6298159],
+          [47.5088747, 50.433144],
+          [46.3558109, 50.0022738],
+          [46.2230696, 48.3045967],
+          [48.2639899, 45.5890745],
+          [49.8089409, 46.2476749],
+          [50.5697511, 46.8378767],
+          [51.5023259, 46.9578911],
+          [52.0816267, 46.7460938],
+          [52.5740644, 46.9274469],
+          [52.8481663, 46.7574206],
+          [53.1141922, 45.4515483],
+          [51.8284906, 45.4262138],
+          [51.0372368, 45.2495618],
+          [50.9373064, 44.8323251],
+          [51.3406499, 44.6002942],
+          [50.2864479, 44.6531865],
+          [50.1393147, 44.4006022],
+          [50.7917068, 44.1455618],
+          [51.1712676, 43.2009397],
+          [52.6370312, 42.7528676],
+          [54.9335312, 40.9820081],
+          [56.9770993, 41.1832541],
+          [58.3796979, 42.2762029],
+          [63.081102, 41.9900448],
+          [65.9549361, 39.7165492],
+          [67.2219195, 39.2894261],
+          [68.3928182, 39.5714681],
+          [69.2306098, 40.0830399],
+          [70.7077354, 40.086897],
+          [72.2682695, 40.1906089],
+          [74.6550434, 40.4102191],
+          [77.1341727, 40.3697853],
+          [80.4088901, 41.0666862],
+          [80.7743596, 43.1992158],
+          [80.3951861, 44.5542172],
+          [82.551728, 45.1773631],
+          [83.2102955, 47.2536931],
+          [85.8002012, 49.9838571],
+          [84.4714154, 51.1119747],
+          [82.0698675, 51.8920708],
+          [78.7907125, 52.8576588],
+          [74.5728013, 55.1536299],
+          [70.6816423, 55.2230638],
+          [64.3898466, 54.8108673],
+          [55.5684347, 53.8449149],
+          [50.6125306, 51.7779243],
+          [50.614618, 51.7761448]
+        ]]
+      }
+    }
+  },
+
+  // 7. Жоңғар хандығы (1635 - 1758)
+  {
+    id: 'dzungar-stage1',
+    stateId: 'dzungar',
+    name: 'Жоңғар хандығы',
+    shortName: 'Жоңғар хандығы',
+    startYear: 1635,
+    endYear: 1758,
+    capital: 'Кульджа (Құлжа)',
+    rulers: 'Батыр хунтайшы, Галдан Бошоқты, Цэван Рабдан, Галдан Церен',
+    description: 'Ойрат-қалмақтардың әскери-теократиялық империясы. Қазақ даласына «Ақтабан шұбырынды» қайғысын әкелген негізгі жау.',
+    color: '#DC2626',
+    fillOpacity: 0.35,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Жоңғар хандығы' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [76.0, 46.0], [84.0, 50.0], [92.0, 48.0], [90.0, 40.0],
+          [80.0, 41.0], [76.0, 46.0]
+        ]]
+      }
+    }
+  },
+
+  // 8. Қазақ хандығы - Абылай хан дәуірі (1719 - 1781)
+  {
+    id: 'kazakh-khanate-stage4',
+    stateId: 'kazakh-khanate',
+    name: 'Қазақ хандығы (Абылай хан дәуірі)',
+    shortName: 'Қазақ хандығы (XVIII ғ.)',
+    startYear: 1719,
+    endYear: 1781,
+    capital: 'Түркістан / Бурабай',
+    rulers: 'Әбілқайыр хан, Абылай хан',
+    description: 'Жоңғарларды толық талқандау, Аңырақай жеңісі, Ресей мен Цин империялары арасындағы теңдессіз дипломатия.',
+    color: '#0284C7',
+    fillOpacity: 0.45,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Қазақ хандығы (Абылай хан)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [52.1457572, 46.7775246],
+          [51.0378215, 48.0774281],
+          [51.7637166, 49.5659663],
+          [50.8419081, 50.3472909],
+          [51.0891289, 51.1573111],
+          [51.7278709, 51.264566],
+          [52.4862424, 51.4165245],
+          [54.5500178, 52.1177422],
+          [59.3892475, 51.4850007],
+          [60.1072034, 53.4634347],
+          [61.7838221, 54.1902202],
+          [63.543984, 54.659154],
+          [65.7672048, 54.8744757],
+          [67.319911, 55.2548429],
+          [69.9289773, 54.9125716],
+          [73.1013875, 55.3588413],
+          [75.2284317, 54.0554892],
+          [77.9424205, 53.1137162],
+          [80.3981647, 51.7041789],
+          [80.1172493, 50.8787873],
+          [80.4177631, 49.1921983],
+          [78.5379327, 48.5342184],
+          [78.270875, 47.809274],
+          [77.0233687, 47.1248478],
+          [76.0392152, 46.7269253],
+          [74.8277062, 46.8383691],
+          [73.5495821, 46.3867893],
+          [73.2334493, 45.9306206],
+          [73.7475924, 45.4201101],
+          [74.2577202, 44.8566421],
+          [73.0508623, 43.3558062],
+          [72.0201779, 43.0265476],
+          [70.0494613, 42.9129335],
+          [68.9546927, 42.1310795],
+          [69.439099, 41.5812063],
+          [68.9414335, 41.1906154],
+          [66.8868761, 41.1919651],
+          [65.6145909, 42.489646],
+          [64.3152623, 42.5926496],
+          [62.8388995, 43.0269623],
+          [61.5872124, 43.2221739],
+          [60.7238399, 42.9955369],
+          [59.9232062, 42.8913073],
+          [58.2097223, 42.8874965],
+          [56.1671477, 41.843829],
+          [52.096207, 42.9729882],
+          [51.0947816, 44.0737916],
+          [51.1762708, 45.2616189],
+          [53.0162817, 45.2234581],
+          [53.3337591, 46.2747202],
+          [53.8807612, 46.7523083],
+          [52.2816449, 46.7639058],
+          [52.1457572, 46.7775246]
+        ]]
+      }
+    }
+  },
+
+  // 9. Қазақ жүздері мен Бөкей Ордасы (1782 - 1840)
+  {
+    id: 'kazakh-khanate-stage4-2',
+    stateId: 'kazakh-khanate',
+    name: 'Қазақ жүздері мен Бөкей Ордасы (Кризис кезеңі)',
+    shortName: 'Қазақ жүздері (1782-1840)',
+    startYear: 1782,
+    endYear: 1840,
+    capital: 'Хан ордасы / Орынбор жаны',
+    rulers: 'Уәли хан, Бөкей хан, Жәңгір хан, Губайдулла хан',
+    description: 'Абылай ханнан кейінгі ішкі бытыраңқылық. Кіші мен Орта жүздің саяси дербестігін біртіндеп жоғалтуы және Бөкей Ордасының құрылуы.',
+    color: '#0284C7',
+    fillOpacity: 0.35,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Қазақ жүздері (1782-1840)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [46.5, 48.5],
+          [50.0, 51.5],
+          [55.0, 52.0],
+          [62.0, 53.5],
+          [68.0, 53.8],
+          [75.0, 52.5],
+          [80.0, 50.0],
+          [78.0, 47.0],
+          [74.0, 45.0],
+          [68.0, 42.5],
+          [62.0, 43.0],
+          [55.0, 43.5],
+          [50.0, 45.0],
+          [46.5, 48.5]
+        ]]
+      }
+    }
+  },
+
+  // 10. Кенесары хан мемлекеті (1841 - 1847)
+  {
+    id: 'kazakh-khanate-stage5',
+    stateId: 'kazakh-khanate',
+    name: 'Кенесары хан мемлекеті (Ұлт-азаттық соғыс)',
+    shortName: 'Кенесары мемлекеті (1841-1847)',
+    startYear: 1841,
+    endYear: 1847,
+    capital: 'Ұлытау / Ырғыз / Торғай',
+    rulers: 'Кенесары Қасымұлы',
+    description: 'Патшалық отарлауға қарсы соңғы жалпыұлттық қазақ мемлекеті. Ресей форпосттарына қарсы азаттық соғысы.',
+    color: '#0284C7',
+    fillOpacity: 0.45,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Кенесары хандығы' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [62.8408062, 49.8673436],
+          [62.5812641, 49.7308376],
+          [62.3888039, 49.2463819],
+          [62.1450931, 48.6319371],
+          [61.5881555, 48.094487],
+          [61.5374003, 47.6119208],
+          [61.679462, 46.9790152],
+          [61.1440036, 46.0343734],
+          [61.642917, 44.8426317],
+          [62.3834733, 44.0054839],
+          [63.9248503, 43.9185195],
+          [65.7519003, 43.5201531],
+          [67.0383944, 42.9105295],
+          [67.9608282, 42.3386489],
+          [69.0152934, 42.1175171],
+          [70.7173502, 41.7330016],
+          [72.1348452, 41.5733111],
+          [73.6172336, 42.1636987],
+          [75.1880978, 42.584554],
+          [76.9409338, 43.0271385],
+          [79.3781212, 42.863219],
+          [80.3138584, 43.7872603],
+          [79.8569706, 44.8640088],
+          [80.5943686, 46.8075083],
+          [81.2359631, 47.0254101],
+          [81.0715805, 47.8698779],
+          [80.7913011, 48.3926444],
+          [81.1540991, 49.0268283],
+          [80.5985926, 49.9769262],
+          [80.3308924, 50.1555315],
+          [79.5525825, 50.2865798],
+          [78.718648, 50.4835647],
+          [77.0095112, 50.6212552],
+          [75.374371, 50.3140501],
+          [73.169283, 50.1524675],
+          [72.0101282, 51.1060462],
+          [71.8890779, 51.3355533],
+          [71.5502711, 51.5497908],
+          [70.5567026, 51.6676413],
+          [68.6203397, 51.4917052],
+          [67.8387425, 51.4122785],
+          [67.1586233, 51.3754728],
+          [66.812114, 51.0293841],
+          [66.0842817, 50.7410923],
+          [65.4846812, 50.3496728],
+          [64.9710055, 50.0193477],
+          [63.2481992, 50.032147],
+          [62.8408062, 49.8673436]
+        ]]
+      }
+    }
+  },
+
+  // 11. Қоқан хандығы (1800 - 1876)
+  {
+    id: 'kokand-stage1',
+    stateId: 'kokand',
+    name: 'Қоқан хандығы',
+    shortName: 'Қоқан хандығы',
+    startYear: 1800,
+    endYear: 1876,
+    capital: 'Қоқан',
+    rulers: 'Алим хан, Омар хан, Кудияр хан',
+    description: 'Оңтүстік Қазақстан мен Жетісудың бір бөлігін уақытша басып алған Ферғана алқабындағы мемлекет.',
+    color: '#059669',
+    fillOpacity: 0.3,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Қоқан хандығы' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [66.0, 41.0], [72.0, 43.0], [77.0, 42.0], [75.0, 39.0],
+          [68.0, 39.0], [66.0, 41.0]
+        ]]
+      }
+    }
+  },
+
+  // 12. Московское государство (1465 – 1533)
+  {
+    id: 'russia-stage1',
+    stateId: 'russian-empire',
+    name: 'Мәскеу мемлекеті (ІІІ Иван мен ІІІ Василий)',
+    shortName: 'Мәскеу кн.',
+    startYear: 1465,
+    endYear: 1533,
+    capital: 'Мәскеу',
+    rulers: 'Иван III, Василий III',
+    description: 'Орыс жерлерін Мәскеу төңірегіне біріктіру (Новгород, Псков, Смоленск).',
+    color: '#475569',
+    fillOpacity: 0.3,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Мәскеу мемлекеті' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [28.0, 58.0], [33.0, 61.0], [45.0, 65.0], [55.0, 61.0],
+          [50.0, 54.0], [40.0, 52.0], [31.0, 54.0], [28.0, 58.0]
+        ]]
+      }
+    }
+  },
+
+  // 13. Орыс патшалығы (1534 – 1689)
+  {
+    id: 'russia-stage2',
+    stateId: 'russian-empire',
+    name: 'Орыс патшалығы (IV Иван мен алғашқы Романовтар)',
+    shortName: 'Орыс патшалығы',
+    startYear: 1534,
+    endYear: 1689,
+    capital: 'Мәскеу',
+    rulers: 'Иван IV Грозный, Михаил Романов, Алексей Михайлович',
+    description: 'Қазан және Астрахань хандықтарын басып алу, Сибирьге қарай ілгерілеу.',
+    color: '#475569',
+    fillOpacity: 0.35,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Орыс патшалығы' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [28.0, 60.0], [40.0, 68.0], [70.0, 73.0], [120.0, 70.0],
+          [130.0, 60.0], [100.0, 52.0], [80.0, 50.0], [55.0, 51.0],
+          [48.0, 46.0], [35.0, 47.0], [28.0, 60.0]
+        ]]
+      }
+    }
+  },
+
+  // 14. Ресей империясы - Шектік бекіністер кезеңі (1731 – 1821)
+  {
+    id: 'russia-stage3',
+    stateId: 'russian-empire',
+    name: 'Ресей империясы (Шекаралық бекініс шептері)',
+    shortName: 'Ресей империясы (1731-1821)',
+    startYear: 1731,
+    endYear: 1821,
+    capital: 'Санкт-Петербург',
+    rulers: 'Анна Иоанновна, Екатерина II, Александр I',
+    description: 'Әбілқайыр ханның ант беруі, Орынбор, Сібір және Ертіс шептері бойымен әскери бекіністер салу.',
+    color: '#475569',
+    fillOpacity: 0.35,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Ресей империясы (1731-1821)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [20.0, 60.0], [28.0, 70.0], [70.0, 73.0], [140.0, 72.0],
+          [160.0, 60.0], [130.0, 48.0], [85.0, 52.0], [78.0, 53.5],
+          [55.0, 54.0], [48.0, 50.0], [38.0, 47.0], [24.0, 50.0], [20.0, 60.0]
+        ]]
+      }
+    }
+  },
+
+  // 15. Ресей империясы - Приказ жүйесі және экспансия (1822 – 1847)
+  {
+    id: 'russia-stage4',
+    stateId: 'russian-empire',
+    name: 'Ресей империясы (Жарлықтар мен Приказ жүйесі)',
+    shortName: 'Ресей империясы (1822-1847)',
+    startYear: 1822,
+    endYear: 1847,
+    capital: 'Санкт-Петербург',
+    rulers: 'Александр I, Николай I',
+    description: '1822 ж. «Сібір қырғыздары туралы Устав» бойынша округтер (Көкшетау, Қарқаралы) ашу. Кенесары восстаниесіне қарсы ішкі экспансия.',
+    color: '#475569',
+    fillOpacity: 0.35,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Ресей империясы (1822-1847)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [20.0, 60.0], [28.0, 70.0], [70.0, 73.0], [160.0, 68.0],
+          [140.0, 45.0], [130.0, 42.0], [85.0, 50.0], [80.0, 48.0],
+          [75.0, 51.0], [60.0, 51.5], [50.0, 48.0], [35.0, 45.0], [20.0, 60.0]
+        ]]
+      }
+    }
+  },
+
+  // 16. Ресей империясы - Толық отарлау кезеңі (1848 – 1900)
+  {
+    id: 'russia-stage5',
+    stateId: 'russian-empire',
+    name: 'Ресей империясы (Толық басып алу кезеңі)',
+    shortName: 'Ресей империясы (1848-1900)',
+    startYear: 1848,
+    endYear: 1900,
+    capital: 'Санкт-Петербург',
+    rulers: 'Николай I, Александр II, Александр III, Николай II',
+    description: 'Кенесары восстаниесі басылған соң Жетісу мен Оңтүстік Қазақстанды, кейін Орта Азияны толық империя құрамына қосу.',
+    color: '#334155',
+    fillOpacity: 0.4,
+    isReconstruction: true,
+    geojson: {
+      type: 'Feature',
+      properties: { name: 'Ресей империясы (1848-1900)' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [20.0, 60.0], [28.0, 70.0], [70.0, 73.0], [170.0, 68.0],
+          [140.0, 43.0], [130.0, 42.0], [85.0, 48.0], [75.0, 37.0],
+          [60.0, 37.0], [45.0, 38.0], [35.0, 45.0], [22.0, 50.0], [20.0, 60.0]
+        ]]
+      }
+    }
+  }
+];
+
+export const territories = HISTORICAL_TERRITORIES;
+</file>
+
+<file path="src/hooks/useHistoricalData.ts">
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { HISTORICAL_EVENTS } from '../data/events';
+import { HISTORICAL_TERRITORIES } from '../data/territories';
+import { HistoricalEvent } from '../types';
+
+const HISTORICAL_STATE_IDS = Array.from(
+  new Set(HISTORICAL_TERRITORIES.map((territory) => territory.stateId))
+);
+
+export function useHistoricalData() {
+  const getInitialYear = (): number => {
+    const params = new URLSearchParams(window.location.search);
+    const y = params.get('year');
+    if (y) {
+      const parsed = parseInt(y, 10);
+      if (!isNaN(parsed) && parsed >= 1200 && parsed <= 1900) {
+        return parsed;
+      }
+    }
+    return 1729;
+  };
+
+  const [selectedYear, _setSelectedYear] = useState<number>(getInitialYear);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showAllEvents, setShowAllEvents] = useState<boolean>(false);
+  const [selectedStateIds, setSelectedStateIds] = useState<string[]>(HISTORICAL_STATE_IDS);
+  const [selectedEvent, setSelectedEvent] = useState<HistoricalEvent | null>(null);
+
+  // Синхронизация года между компонентами в реальном времени
+  useEffect(() => {
+    const handleYearSync = (e: CustomEvent) => {
+      if (e.detail !== undefined && e.detail !== selectedYear) {
+        _setSelectedYear(e.detail);
+      }
+    };
+    window.addEventListener('sync_historical_year', handleYearSync as EventListener);
+    return () => {
+      window.removeEventListener('sync_historical_year', handleYearSync as EventListener);
+    };
+  }, [selectedYear]);
+
+  const setSelectedYear = useCallback((year: number | ((prev: number) => number)) => {
+    _setSelectedYear((prevYear) => {
+      const nextYear = typeof year === 'function' ? year(prevYear) : year;
+      
+      // Обновляем URL в строке браузера
+      const params = new URLSearchParams(window.location.search);
+      params.set('year', nextYear.toString());
+      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+      
+      // Рассылаем событие обновления всем инстансам хука
+      window.dispatchEvent(new CustomEvent('sync_historical_year', { detail: nextYear }));
+      
+      return nextYear;
+    });
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('year', selectedYear.toString());
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  }, [selectedYear]);
+
+  const toggleState = useCallback((stateId: string) => {
+    setSelectedStateIds((prev) =>
+      prev.includes(stateId)
+        ? prev.filter((id) => id !== stateId)
+        : [...prev, stateId]
+    );
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setSelectedStateIds(HISTORICAL_STATE_IDS);
+    setShowAllEvents(false);
+    searchQuery && setSearchQuery('');
+  }, [searchQuery]);
+
+  // Фильтрация событий СТРОГО год в год
+  const filteredEvents = useMemo(() => {
+    return HISTORICAL_EVENTS.filter((event) => {
+      const hasMatchingState =
+        !event.stateIds ||
+        event.stateIds.length === 0 ||
+        event.stateIds.some((id) => selectedStateIds.includes(id));
+
+      if (!hasMatchingState) return false;
+
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const name = (event.name || (event as any).title || '').toLowerCase();
+        const loc = (event.location || '').toLowerCase();
+        const desc = (event.description || '').toLowerCase();
+        return name.includes(query) || loc.includes(query) || desc.includes(query);
+      }
+
+      if (showAllEvents) {
+        return true;
+      }
+
+      // Если у события есть диапазон лет (например, war с year по yearEnd)
+      const endYear = (event as any).yearEnd || event.year;
+      return selectedYear >= event.year && selectedYear <= endYear;
+    });
+  }, [selectedYear, searchQuery, showAllEvents, selectedStateIds]);
+
+  // Фильтрация территорий
+  const visibleTerritories = useMemo(() => {
+    return HISTORICAL_TERRITORIES.filter((territory) => {
+      const isStateActive = selectedStateIds.includes(territory.stateId);
+      if (!isStateActive) return false;
+
+      return selectedYear >= territory.startYear && selectedYear <= territory.endYear;
+    });
+  }, [selectedYear, selectedStateIds]);
+
+  return {
+    events: HISTORICAL_EVENTS,
+    selectedYear,
+    setSelectedYear,
+    searchQuery,
+    setSearchQuery,
+    showAllEvents,
+    setShowAllEvents,
+    selectedStateIds,
+    toggleState,
+    resetFilters,
+    filteredEvents,
+    visibleTerritories,
+    selectedEvent,
+    setSelectedEvent,
+  };
+}
+</file>
+
+<file path="src/types/react-leaflet-cluster.d.ts">
+declare module 'react-leaflet-cluster' {
+  import type { ComponentType, ReactNode } from 'react';
+
+  interface MarkerClusterGroupProps {
+    children?: ReactNode;
+    chunkedLoading?: boolean;
+    maxClusterRadius?: number;
+    spiderfyOnMaxZoom?: boolean;
+    showCoverageOnHover?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    polygonOptions?: Record<string, any>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  }
+
+  const MarkerClusterGroup: ComponentType<MarkerClusterGroupProps>;
+  export default MarkerClusterGroup;
+}
+</file>
+
+<file path="src/utils/dateUtils.ts">
+/** Форматирует год с пометкой "до н.э." при отрицательном значении (на будущее) и склонением "год/года/лет" */
+export function formatYear(year: number): string {
+  return `${year} г.`;
+}
+
+/** Активна ли территория/событие в заданном году (включительно) */
+export function isActiveInYear(year: number, start: number, end: number): boolean {
+  return year >= start && year <= end;
+}
+
+/** Насколько близко событие к выбранному году (для определения видимости маркеров) */
+export function yearDistance(eventYear: number, eventYearEnd: number | undefined, selectedYear: number): number {
+  const end = eventYearEnd ?? eventYear;
+  if (selectedYear >= eventYear && selectedYear <= end) return 0;
+  return selectedYear < eventYear ? eventYear - selectedYear : selectedYear - end;
+}
+</file>
+
+<file path="src/App.css">
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 1200px 800px at 15% -10%, rgba(212, 175, 55, 0.06), transparent 60%),
+    var(--color-bg);
+}
+
+.app__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.map-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+@media (max-width: 860px) {
+  .app__body {
+    flex-direction: column;
+  }
+}
+</file>
+
+<file path="src/index.css">
+:root {
+  /* === Дизайн-токены проекта «Атлас казахской истории» === */
+  --color-bg: #0a0d13;
+  --color-bg-panel: #11141c;
+  --color-bg-panel-2: #171b26;
+  --color-bg-elevated: #1c2130;
+  --color-border: rgba(212, 175, 55, 0.16);
+  --color-border-strong: rgba(212, 175, 55, 0.32);
+
+  --color-gold: #d4af37;
+  --color-gold-soft: #e8ce7a;
+  --color-sand: #e8d9b5;
+
+  --color-text: #ece6d6;
+  --color-text-muted: #98a0b3;
+  --color-text-faint: #6b7280;
+
+  --color-rust: #c06848;
+
+  --font-display: 'Marcellus', 'Georgia', serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Фиксы для Leaflet и тултипов === */
+
+/* Разворачиваем карту на всю доступную высоту */
+.leaflet-container {
+  width: 100%;
+  height: 100% !important;
+  background: var(--color-bg) !important;
+  z-index: 1;
+}
+
+/* Убираем перехват мыши тултипом (решает проблему мерцания) */
+.leaflet-tooltip,
+.territory-tooltip-container {
+  pointer-events: none !important;
+}
+
+/* Плавный ховер территорий через CSS */
+.leaflet-interactive {
+  transition: fill-opacity 0.2s ease, stroke-width 0.2s ease;
+  cursor: pointer;
+}
+
+.leaflet-interactive:hover {
+  fill-opacity: 0.55 !important;
+  stroke-width: 3.5px !important;
+}
+
+/* === Стили элементов управления === */
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+a { color: var(--color-gold-soft); }
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.25);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.4); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #020617 !important;
+}
+@import 'leaflet/dist/leaflet.css';
+
+html, body, #root, .app {
+  height: 100vh !important;
+  width: 100vw !important;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-area {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 400px;
+}
+
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #020617 !important;
+  z-index: 1 !important;
+}
+</file>
+
+<file path="src/main.tsx">
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+</file>
+
+<file path="src/vite-env.d.ts">
+/// <reference types="vite/client" />
+</file>
+
+<file path=".gitignore">
+node_modules
+dist
+.DS_Store
+*.local
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Атлас казахской истории — интерактивная карта</title>
+    <meta name="description" content="Интерактивная историческая карта Казахстана: территории ханств, сражения и ключевые события во времени." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "kazakh-history-atlas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-cluster": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.14",
+    "@types/leaflet": "^1.9.12",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  }
+}
+</file>
+
+<file path="README.md">
+# Атлас казахской истории
+
+Интерактивная веб-карта по истории Казахстана: территории ханств и государств,
+сражения и ключевые события, привязанные к временной шкале. Учебный командный проект.
+
+## Быстрый запуск
+
+Понадобится Node.js версии 18 или новее.
+
+```bash
+npm install
+npm run dev
+```
+
+Откройте адрес, который выведет Vite в терминале (обычно `http://localhost:5173`).
+
+Для сборки готового к публикации сайта:
+
+```bash
+npm run build
+npm run preview
+```
+
+> Карта использует тайлы OpenStreetMap/CARTO по сети — для отображения базовой карты
+> нужен доступ в интернет. Сами данные о территориях и событиях — локальные и работают offline.
+
+## Архитектура проекта
+
+```
+src/
+  types/            — TypeScript-типы данных (события, территории)
+  data/              — mock-данные: battles/events, территории, "закладки" на шкале времени
+    events.ts
+    territories.ts
+    periods.ts
+  hooks/
+    useHistoricalData.ts   — центральный стейт: год, фильтры, поиск, вычисляемые списки
+  components/
+    Layout/Header.tsx      — шапка, поиск, переключение вкладок (карта / список / о проекте)
+    Map/                   — карта на Leaflet
+      HistoricalMap.tsx
+      TerritoryLayer.tsx   — полигоны территорий с тултипами
+      BattleMarkers.tsx    — маркеры событий с кластеризацией
+    Timeline/Timeline.tsx  — временная шкала, слайдер, "закладки", автопроигрывание
+    EventCard/EventCard.tsx — подробная карточка события/битвы
+    Filters/FilterPanel.tsx — фильтры по типу события и по государству
+    Legend/Legend.tsx       — легенда территорий, видимых в текущем году
+    BattlesList/            — страница со списком всех событий
+    AboutPanel/              — страница "О проекте"
+public/
+  geojson/           — папка для более точных GeoJSON-файлов территорий (пока пусто)
+```
+
+Данные и отображение разделены: все факты лежат в `src/data`, компоненты только
+читают их через хук `useHistoricalData`. Это позволяет команде дополнять/уточнять
+исторические данные, не трогая код интерфейса.
+
+## Как это работает
+
+1. `useHistoricalData` хранит выбранный год (синхронизирован с `?year=` в URL),
+   фильтры по типу события и по государству, а также поисковый запрос.
+2. Территории (`territories.ts`) имеют `startYear` / `endYear` — при смене года
+   на карте автоматически остаются только те, что активны в этот момент.
+3. События (`events.ts`) показываются, если их год попадает в окно ±12 лет от
+   выбранного года (см. константу `EVENT_WINDOW` в хуке) — либо все сразу, если
+   включён переключатель "Показать все события" или используется поиск.
+4. Клик по маркеру открывает `EventCard` с полной информацией о событии.
+
+## О точности исторических данных — ВАЖНО
+
+- **Границы территорий** (`territories.ts`, поле `geojson`) — упрощённая
+  приблизительная реконструкция, нарисованная от руки по общим представлениям
+  о регионах (Жетысу, Приаралье, междуречье Волги и Урала и т.д.), а НЕ точные
+  оцифрованные исторические карты. Каждая территория помечена
+  `isReconstruction: true`, а в интерфейсе об этом дополнительно написано в
+  тултипе и в легенде.
+- **Координаты сражений** в большинстве случаев помечены `isLocationApproximate: true` —
+  точные места многих битв являются предметом дискуссий в источниках.
+- **События с пометкой `needsVerification: true`** (например, Орбулакская и
+  Аңырақайская битвы, восстание Кенесары) требуют, чтобы команда сверила даты,
+  численность войск и детали хода сражений по академическим источникам перед
+  защитой проекта — в данных сознательно избегались "красивые", но непроверенные
+  цифры (например, соотношение сил в битвах).
+- Ни одна дата, координата или факт не выдуманы специально для проекта — но
+  рекомендуется дополнительная сверка, особенно там, где стоит пометка о
+  приблизительности.
+
+## Как добавить более точные исторические границы
+
+См. `public/geojson/README.md` — коротко: подготовьте `.geojson`-файл территории
+и замените содержимое поля `geojson` соответствующей записи в `src/data/territories.ts`.
+
+## Дальнейшие идеи развития
+
+- Заменить приблизительные полигоны на оцифрованные исторические карты.
+- Добавить backend и админку для редактирования событий без правки кода.
+- Добавить страницу отдельного государства/ханства с историей его границ во времени.
+- Локализация на казахский и английский языки.
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+</file>
+
+<file path="tsconfig.node.json">
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+</file>
+
+<file path="vite.config.ts">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+<file path="src/types/index.ts">
+export type EventCategory = 'battle' | 'reform' | 'diplomacy';
+
+export interface HistoricalSource {
+  title: string;
+  url?: string;
+}
+
+export interface HistoricalSide {
+  side: string;
+  description: string;
+}
+export interface PeriodBookmark {
+  year: number;
+  label: string;
+  description: string;
+}
+
+export interface HistoricalEvent {
+  id: string;
+  name: string;
+  year: number;
+  yearEnd?: number;
+  dateLabel?: string;
+  isDateApproximate?: boolean;
+  location: string;
+  isLocationApproximate?: boolean;
+  coordinates?: [number, number];
+  latitude?: number;
+  longitude?: number;
+  needsVerification?: boolean;
+  category: EventCategory;
+  stateIds: string[];
+  description: string;
+  imageUrl?: string;
+  participants?: string[];
+  commanders?: {
+    kazakh?: string[];
+    opponents?: string[];
+  } | string[];
+  cause?: string;
+  course?: string;
+  sides?: HistoricalSide[];
+  result?: string;
+  casualties?: string;
+  outcome?: 'Жеңіс' | 'Жеңіліс' | 'Нәтижесіз / Келісім';
+  significance?: string;
+  sources?: HistoricalSource[];
+}
+
+export interface HistoricalTerritory {
+  id: string;
+  stateId: string;
+  name: string;
+  shortName: string;
+  startYear: number;
+  endYear: number;
+  capital: string;
+  rulers: string;
+  description: string;
+  color: string;
+  fillOpacity: number;
+  isReconstruction: boolean;
+  geojson: {
+    type: 'Feature';
+    geometry: {
+      type: 'Polygon' | 'MultiPolygon';
+      coordinates: number[][][] | number[][][][];
+    };
+    properties?: Record<string, any>;
+  };
+}
+
+export interface UseHistoricalDataReturn {
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  showAllEvents: boolean;
+  setShowAllEvents: (show: boolean) => void;
+  activeStateIds: string[];
+  toggleStateId: (stateId: string) => void;
+  selectedEvent: HistoricalEvent | null;
+  setSelectedEvent: (event: HistoricalEvent | null) => void;
+  filteredEvents: HistoricalEvent[];
+  activeTerritories: HistoricalTerritory[];
+}
+
+export const CATEGORY_ICONS: Record<EventCategory, string> = {
+  battle: '⚔️',
+  reform: '📜',
+  diplomacy: '🤝'
+};
+
+export const CATEGORY_LABELS: Record<EventCategory, string> = {
+  battle: 'Шайқас',
+  reform: 'Реформа',
+  diplomacy: 'Дипломатия'
+};
+</file>
+
+<file path="src/App.tsx">
+import { useState, useEffect } from 'react';
+import { useHistoricalData } from './hooks/useHistoricalData';
+import { Header } from './components/Layout/Header';
+import { HistoricalMap } from './components/Map/HistoricalMap';
+import { Timeline } from './components/Timeline/Timeline';
+import { EventCard } from './components/EventCard/EventCard';
+import { FilterPanel } from './components/Filters/FilterPanel';
+import { Legend } from './components/Legend/Legend';
+import { AboutPanel } from './components/AboutPanel/AboutPanel';
+import { BattlesList } from './components/BattlesList/BattlesList';
+import type { HistoricalEvent } from './types';
+import './App.css';
+
+type View = 'map' | 'list' | 'about';
+
+function App() {
+  const store = useHistoricalData();
+  const [view, setView] = useState<View>('map');
+  const [filtersOpen, setFiltersOpen] = useState(false); // На мобилках фильтры по умолчанию лучше закрыть
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Автоматически закрываем фильтры на экранах меньше 768px при старте
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setFiltersOpen(false);
+    }
+  }, []);
+
+  const handleSelectEvent = (event: HistoricalEvent) => {
+    store.setSelectedEvent(event);
+    setView('map');
+  };
+
+  const eventsList = store.filteredEvents || [];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100vw', overflow: 'hidden', backgroundColor: '#020617' }}>
+      <Header
+        view={view}
+        onChangeView={setView}
+        events={eventsList}
+        onSelectSearchResult={handleSelectEvent}
+        searchQuery={store.searchQuery}
+        onSearchQueryChange={store.setSearchQuery}
+        onToggleFilters={() => setFiltersOpen((v) => !v)}
+      />
+
+      <main style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', width: '100%', height: 'calc(100dvh - 64px)' }}>
+        {view === 'map' && (
+          <div style={{ display: 'flex', width: '100%', height: '100%', position: 'relative' }}>
+            {/* FilterPanel поверх карты для мобилок */}
+            <div style={{ 
+              zIndex: 30, 
+              position: window.innerWidth < 768 ? 'absolute' : 'relative', 
+              top: 0, 
+              left: 0, 
+              height: '100%',
+              maxHeight: '100%'
+            }}>
+              <FilterPanel store={store} open={filtersOpen} onClose={() => setFiltersOpen(false)} />
+            </div>
+
+            <div style={{ flex: 1, height: '100%', width: '100%', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
+              
+              <HistoricalMap
+                events={eventsList}
+                selectedYear={store.selectedYear}
+                onEventSelect={handleSelectEvent}
+              />
+
+              <Legend territories={[]} />
+
+              {/* Адаптированный Timeline под мобилки */}
+              <div style={{ 
+                position: 'absolute', 
+                bottom: window.innerWidth < 768 ? '12px' : '24px', 
+                left: '50%', 
+                transform: 'translateX(-50%)', 
+                width: '95%', 
+                maxWidth: '800px', 
+                zIndex: 1000 
+              }}>
+                <Timeline
+                  selectedYear={store.selectedYear}
+                  onYearChange={store.setSelectedYear}
+                  isPlaying={isPlaying}
+                  onTogglePlay={() => setIsPlaying((value) => !value)}
+                  showAllEvents={store.showAllEvents}
+                  onToggleShowAllEvents={store.setShowAllEvents}
+                  minYear={1200}
+                  maxYear={1900}
+                />
+              </div>
+            </div>
+
+            <EventCard event={store.selectedEvent} onClose={() => store.setSelectedEvent(null)} />
+          </div>
+        )}
+
+        {view === 'list' && (
+          <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+            <BattlesList
+              events={eventsList}
+              onSelectEvent={handleSelectEvent}
+            />
+          </div>
+        )}
+
+        {view === 'about' && (
+          <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+            <AboutPanel />
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default App;
+</file>
+
+<file path="src/components/Map/HistoricalMap.tsx">
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import type { HistoricalEvent, HistoricalTerritory } from '../../types';
+import { HISTORICAL_TERRITORIES } from '../../data/territories';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+function MapResizeHandler() {
+  const map = useMap();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [map]);
+
+  return null;
+}
+
+interface HistoricalMapProps {
+  events: HistoricalEvent[];
+  selectedYear: number;
+  onEventSelect?: (event: HistoricalEvent) => void;
+}
+
+export function HistoricalMap({ events, selectedYear, onEventSelect }: HistoricalMapProps) {
+  const activeTerritories = (HISTORICAL_TERRITORIES || []).filter((territory) => {
+    const rawTerritory = territory as HistoricalTerritory & {
+      start_year?: number;
+      end_year?: number;
+    };
+    const start = rawTerritory.startYear ?? rawTerritory.start_year ?? 0;
+    const end = rawTerritory.endYear ?? rawTerritory.end_year ?? 3000;
+    return selectedYear >= start && selectedYear <= end;
+  });
+
+  return (
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      {/* Превращает стандартную светлую карту в стильный тёмный режим без сторонних ключей */}
+      <style>
+        {`
+          .leaflet-tile-pane {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+          }
+        `}
+      </style>
+
+      <MapContainer
+        center={[48.0196, 66.9237]}
+        zoom={5}
+        style={{ height: '100%', width: '100%', backgroundColor: '#020617' }}
+      >
+        <MapResizeHandler />
+
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {activeTerritories.map((territory) => {
+          if (!territory.geojson) return null;
+
+          return (
+            <GeoJSON
+              key={`${territory.id}-${selectedYear}`}
+              data={territory.geojson as any}
+              style={{
+                color: territory.color || '#3B82F6',
+                weight: 2,
+                fillColor: territory.color || '#3B82F6',
+                fillOpacity: territory.fillOpacity ?? 0.3,
+              }}
+            >
+              <Popup>
+                <div style={{ color: '#000' }}>
+                  <strong>{territory.name}</strong>
+                  <br />
+                  <small>Билеушілері: {territory.rulers}</small>
+                </div>
+              </Popup>
+            </GeoJSON>
+          );
+        })}
+
+        {events.map((event) => {
+          let coords = event.coordinates;
+          if (!coords && event.latitude !== undefined && event.longitude !== undefined) {
+            coords = [event.latitude, event.longitude];
+          }
+          if (!coords || !Array.isArray(coords) || coords.length < 2) return null;
+
+          const position: [number, number] =
+            coords[0] > 50 && coords[1] < 50
+              ? [coords[1], coords[0]]
+              : [coords[0], coords[1]];
+
+          return (
+            <Marker
+              key={event.id}
+              position={position}
+              eventHandlers={{
+                click: () => onEventSelect && onEventSelect(event),
+              }}
+            >
+              <Popup>
+                <div style={{ color: '#000' }}>
+                  <strong>{event.name}</strong> ({event.year} ж.)
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MapContainer>
+    </div>
+  );
+}
+</file>
+
+</files>

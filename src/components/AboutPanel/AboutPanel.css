@@ -18,12 +18,23 @@
   border-radius: 999px;
   padding: 4px 12px;
   margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+}
+
+.about-panel__eyebrow:hover {
+  background: rgba(212, 175, 55, 0.2);
+  transform: translateY(-1px);
 }
 
 .about-panel__inner h2 {
   font-size: 28px;
   color: var(--color-sand);
   margin-bottom: 18px;
+  line-height: 1.3;
+  font-family: var(--font-display);
+  font-weight: 400;
 }
 
 .about-panel__inner h3 {
@@ -32,6 +43,9 @@
   margin: 28px 0 10px;
   font-family: var(--font-body);
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 13px;
 }
 
 .about-panel__inner p {
@@ -46,6 +60,7 @@
   line-height: 1.8;
   color: var(--color-text);
   font-size: 14px;
+  list-style-type: disc;
 }
 
 .about-panel__inner li {
@@ -58,4 +73,94 @@
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-md);
   padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  font-family: var(--font-body);
+}
+
+/* Анимации появления контента */
+.about-panel__inner > *:not(h3):first-child {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Добавляем отступы для контента */
+.about-panel__inner > p,
+.about-panel__inner > ul {
+  animation-delay: 0.1s;
+}
+
+/* Ховер эффекты для ссылок */
+.about-panel a {
+  color: var(--color-gold-soft);
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.about-panel a:hover {
+  color: var(--color-gold);
+}
+
+.about-panel a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background: var(--color-gold);
+  transition: width 0.3s ease;
+}
+
+.about-panel a:hover::after {
+  width: 100%;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .about-panel {
+    padding: 24px 16px 40px;
+  }
+
+  .about-panel__inner h2 {
+    font-size: 24px;
+  }
+
+  .about-panel__inner p,
+  .about-panel__inner li {
+    font-size: 13.5px;
+  }
+
+  .about-panel__eyebrow {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+}
+
+/* Scrollbar styling */
+.about-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.about-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.about-panel::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 3px;
+}
+
+.about-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.4);
 }
