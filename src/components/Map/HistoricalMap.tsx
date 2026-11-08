@@ -146,13 +146,17 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
             >
               <Popup>
                 <div className="historical-popup">
-                  <div className="historical-popup__year-badge">{event.year} ж.</div>
+                  <div className="historical-popup__year-badge">{event.dateLabel || `${event.year} ж.`}</div>
                   <h4 className="historical-popup__title">{event.name}</h4>
-                  {event.location && (
+                  {event.region ? (
+                    <div className="historical-popup__row">
+                      <span className="historical-popup__label">Гео-бағдар:</span> {event.region}
+                    </div>
+                  ) : event.location ? (
                     <div className="historical-popup__row">
                       <span className="historical-popup__label">Орны:</span> {event.location}
                     </div>
-                  )}
+                  ) : null}
                   {event.outcome && (
                     <div className="historical-popup__outcome">
                       Нәтижесі: <strong>{event.outcome}</strong>

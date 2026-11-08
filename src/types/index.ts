@@ -3,48 +3,98 @@ export type EventCategory = 'battle' | 'reform' | 'diplomacy';
 export interface HistoricalSource {
   title: string;
   url?: string;
+  archiveRef?: string;
 }
 
 export interface HistoricalSide {
   side: string;
   description: string;
 }
+
 export interface PeriodBookmark {
   year: number;
   label: string;
   description: string;
 }
 
+// 1. Кезеңдер мен фазалар (Қақтығыстың сипаты)
+export interface HistoricalPhase {
+  stage: string;       // Мысалы: "I кезең. Шоғырлану", "Шешуші шайқас"
+  description: string; // Әскери маневрлер мен нақты әрекеттер
+}
+
+// 2. Тараптар мен басшылар құрылымы
+export interface ConflictSideDetails {
+  name: string;        // Тарап атауы
+  leaders: string[];   // Қолбасшылар, батырлар, хандар
+  forces?: string;     // Қарулы күштер құрамы мен саны
+}
+
+export interface HistoricalConflictSides {
+  sideA: ConflictSideDetails;
+  sideB: ConflictSideDetails;
+}
+
+// 3. Архивтік құжаттар мен дереккөздер
+export interface HistoricalArchiveSource {
+  title: string;          // Құжат немесе еңбек атауы
+  archiveRef?: string;    // Архив қоры, опись, іс нөмірі (РМӘТА, ҚР ОМА, т.б.)
+  author?: string;        // Авторы немесе зерттеушісі
+  docType?: string;       // Құжат түрі (рапорт, жарлық, шежіре, хат)
+  url?: string;
+}
+
+// Толық тарихи-аналитикалық оқиға форматы
 export interface HistoricalEvent {
   id: string;
-  name: string;
-  year: number;
-  yearEnd?: number;
-  dateLabel?: string;
+  name: string;              // Тақырып: толық тарихи атауы және нақты мерзімі
+  year: number;              // Жыл
+  yearEnd?: number;          // Аяқталу жылы
+  dateLabel?: string;        // Толық календарлық мерзімі немесе маусымы
   isDateApproximate?: boolean;
-  location: string;
+
+  // Жергілікті орын және гео-бағдарлар
+  location: string;          // Қысқаша топоним
+  region?: string;           // Нақты географиялық бағдарлар (өзен алқабы, тау шатқалы, урочище)
   isLocationApproximate?: boolean;
   coordinates?: [number, number];
   latitude?: number;
   longitude?: number;
   needsVerification?: boolean;
+
   category: EventCategory;
   stateIds: string[];
+
+  // 1. Оқиғаның тұжырымдамалық сипаттамасы
   description: string;
-  imageUrl?: string;
-  participants?: string[];
+
+  // 2. Тарихи контекст пен себептері (экономикалық, жер, геосаяси)
+  cause?: string;
+
+  // 3. Тараптар мен қолбасшылар
+  sidesAndLeaders?: HistoricalConflictSides;
   commanders?: {
     kazakh?: string[];
     opponents?: string[];
   } | string[];
-  cause?: string;
-  course?: string;
+  participants?: string[];
   sides?: HistoricalSide[];
-  result?: string;
-  casualties?: string;
-  outcome?: 'Жеңіс' | 'Жеңіліс' | 'Нәтижесіз / Келісім';
-  significance?: string;
+
+  // 4. Қақтығыстың сипаты мен кезеңдері
+  coursePhases?: HistoricalPhase[];
+  course?: string;
+
+  // 5. Дереккөздер мен архивтік құжаттар
+  sourcesAndArchives?: HistoricalArchiveSource[];
   sources?: HistoricalSource[];
+
+  // 6. Салдары мен мемлекеттілікке ықпалы
+  significance?: string;
+  result?: string;
+  outcome?: 'Жеңіс' | 'Жеңіліс' | 'Нәтижесіз / Келісім';
+  casualties?: string;
+
+  imageUrl?: string;
 }
 
 export interface HistoricalTerritory {
