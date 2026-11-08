@@ -10,6 +10,7 @@ import { AboutPanel } from './components/AboutPanel/AboutPanel';
 import { BattlesList } from './components/BattlesList/BattlesList';
 import type { HistoricalEvent } from './types';
 import './App.css';
+import { Analytics } from '@vercel/analytics/react';
 
 type View = 'map' | 'list' | 'about';
 
@@ -49,11 +50,11 @@ function App() {
         {view === 'map' && (
           <div style={{ display: 'flex', width: '100%', height: '100%', position: 'relative' }}>
             {/* FilterPanel поверх карты для мобилок */}
-            <div style={{ 
-              zIndex: 30, 
-              position: window.innerWidth < 768 ? 'absolute' : 'relative', 
-              top: 0, 
-              left: 0, 
+            <div style={{
+              zIndex: 30,
+              position: window.innerWidth < 768 ? 'absolute' : 'relative',
+              top: 0,
+              left: 0,
               height: '100%',
               maxHeight: '100%'
             }}>
@@ -61,7 +62,7 @@ function App() {
             </div>
 
             <div style={{ flex: 1, height: '100%', width: '100%', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
-              
+
               <HistoricalMap
                 events={eventsList}
                 selectedYear={store.selectedYear}
@@ -71,14 +72,14 @@ function App() {
               <Legend territories={[]} />
 
               {/* Адаптированный Timeline под мобилки */}
-              <div style={{ 
-                position: 'absolute', 
-                bottom: window.innerWidth < 768 ? '12px' : '24px', 
-                left: '50%', 
-                transform: 'translateX(-50%)', 
-                width: '95%', 
-                maxWidth: '800px', 
-                zIndex: 1000 
+              <div style={{
+                position: 'absolute',
+                bottom: window.innerWidth < 768 ? '12px' : '24px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '95%',
+                maxWidth: '800px',
+                zIndex: 1000
               }}>
                 <Timeline
                   selectedYear={store.selectedYear}
@@ -112,6 +113,7 @@ function App() {
           </div>
         )}
       </main>
+      <Analytics />
     </div>
   );
 }
