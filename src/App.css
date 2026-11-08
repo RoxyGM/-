@@ -21,6 +21,60 @@
   height: 100%;
 }
 
+/* Responsive Timeline Wrapper */
+.timeline-wrapper {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(94%, 800px);
+  z-index: 30;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .timeline-wrapper {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: min(calc(100% - 16px), 800px);
+  }
+}
+
+/* Responsive Filter Panel Wrapper */
+.filter-panel-wrapper {
+  z-index: 35;
+  position: absolute;
+  top: 16px;
+  left: 0;
+  max-height: calc(100% - 32px);
+  display: flex;
+  pointer-events: none;
+}
+
+.filter-panel-wrapper.is-open {
+  pointer-events: auto;
+}
+
+.filter-panel-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .filter-panel-wrapper {
+    top: 8px;
+    max-height: calc(100% - 16px);
+  }
+  .filter-panel-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 34;
+    cursor: pointer;
+  }
+}
+
 @media (max-width: 860px) {
   .app__body {
     flex-direction: column;

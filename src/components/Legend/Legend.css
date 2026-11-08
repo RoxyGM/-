@@ -88,8 +88,30 @@
 
 @media (max-width: 860px) {
   .legend {
-    left: 12px;
-    bottom: 140px;
-    max-width: 70vw;
+    left: 10px;
+    bottom: 125px;
+    max-width: calc(100vw - 20px);
+    padding: 8px 12px;
+  }
+  .legend__title {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  .legend ul {
+    gap: 4px;
+  }
+  .legend li {
+    font-size: 11.5px;
+  }
+  .legend__note {
+    display: none;
+  }
+  .legend--empty {
+    min-width: 0;
+    max-width: calc(100vw - 20px);
+    padding: 8px 12px;
+  }
+  .legend--empty p {
+    font-size: 11.5px;
   }
 }

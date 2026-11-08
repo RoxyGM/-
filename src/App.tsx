@@ -46,21 +46,21 @@ function App() {
         isFiltersOpen={filtersOpen}
       />
 
-      <main style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', width: '100%', height: 'calc(100dvh - 64px)' }}>
+      <main style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden', display: 'flex', width: '100%' }}>
         {view === 'map' && (
           <div style={{ display: 'flex', width: '100%', height: '100%', position: 'relative' }}>
             {/* FilterPanel парит над картой с размытием и скруглением справа */}
-            <div style={{
-              zIndex: 35,
-              position: 'absolute',
-              top: '16px',
-              left: 0,
-              maxHeight: 'calc(100% - 32px)',
-              pointerEvents: filtersOpen ? 'auto' : 'none',
-              display: 'flex',
-            }}>
+            <div className={`filter-panel-wrapper${filtersOpen ? ' is-open' : ''}`}>
               <FilterPanel store={store} open={filtersOpen} onClose={() => setFiltersOpen(false)} />
             </div>
+
+            {filtersOpen && (
+              <div
+                className="filter-panel-backdrop"
+                onClick={() => setFiltersOpen(false)}
+                aria-hidden="true"
+              />
+            )}
 
             <div style={{ flex: 1, height: '100%', width: '100%', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
 
@@ -73,15 +73,7 @@ function App() {
               <Legend territories={store.visibleTerritories || []} />
 
               {/* Адаптированный Timeline под мобилки */}
-              <div style={{
-                position: 'absolute',
-                bottom: window.innerWidth < 768 ? '12px' : '24px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '95%',
-                maxWidth: '800px',
-                zIndex: 1000
-              }}>
+              <div className="timeline-wrapper">
                 <Timeline
                   selectedYear={store.selectedYear}
                   onYearChange={store.setSelectedYear}

@@ -106,21 +106,23 @@ export function Header({
           className={view === 'map' ? 'is-active' : ''}
           onClick={() => onChangeView('map')}
         >
-          Карта
+          <span>Карта</span>
         </button>
         <button
           type="button"
           className={view === 'list' ? 'is-active' : ''}
           onClick={() => onChangeView('list')}
         >
-          Барлық шайқастар
+          <span className="header__nav-full">Барлық шайқастар</span>
+          <span className="header__nav-short">Шайқастар</span>
         </button>
         <button
           type="button"
           className={view === 'about' ? 'is-active' : ''}
           onClick={() => onChangeView('about')}
         >
-          Жоба туралы
+          <span className="header__nav-full">Жоба туралы</span>
+          <span className="header__nav-short">Жоба</span>
         </button>
         {view === 'map' && (
           <button
@@ -128,11 +130,12 @@ export function Header({
             className={`header__filters-toggle ${isFiltersOpen ? 'is-active' : ''}`}
             onClick={onToggleFilters}
             title={isFiltersOpen ? 'Сүзгілерді жасыру' : 'Сүзгілерді көрсету'}
+            aria-label="Сүзгілерді ашу немесе жабу"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
-            Сүзгілер
+            <span>Сүзгілер</span>
           </button>
         )}
       </nav>

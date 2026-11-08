@@ -24,6 +24,7 @@ export function EventCard({ event, onClose }: EventCardProps) {
     <div className="event-card-overlay" role="dialog" aria-modal="true" aria-label={event.name}>
       <div className="event-card-backdrop" onClick={onClose} />
       <aside className="event-card">
+        <div className="event-card__drag-handle" aria-hidden="true" />
         <button className="event-card__close" onClick={onClose} aria-label="Жабу" title="Жабу">
           ×
         </button>
@@ -260,10 +261,17 @@ export function EventCard({ event, onClose }: EventCardProps) {
                       )}
                     </div>
                     {src.archiveRef && (
-                      <div className="event-card__archive-ref">📂 {src.archiveRef}</div>
+                      <div className="event-card__archive-ref">📂 Мұрағат қоры: {src.archiveRef}</div>
                     )}
-                    {src.author && (
-                      <div className="event-card__archive-author">✍️ {src.author} {src.docType ? `(${src.docType})` : ''}</div>
+                    {(src.author || src.docType) && (
+                      <div className="event-card__archive-author">
+                        {src.author && <span>🏛️ Дереккөз: {src.author} </span>}
+                        {src.docType && (
+                          <span style={{ color: 'var(--color-gold-soft)' }}>
+                            {src.author ? `(${src.docType})` : `📚 ${src.docType}`}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </li>
                 ))}

@@ -126,19 +126,26 @@
   width: 100%;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .about-panel {
-    padding: 24px 16px 40px;
+    padding: 20px 14px 44px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .about-panel__inner h2 {
-    font-size: 24px;
+    font-size: 22px;
+    margin-bottom: 14px;
+  }
+
+  .about-panel__inner h3 {
+    font-size: 13px;
+    margin: 20px 0 8px;
   }
 
   .about-panel__inner p,
   .about-panel__inner li {
     font-size: 13.5px;
+    line-height: 1.65;
   }
 
   .about-panel__eyebrow {

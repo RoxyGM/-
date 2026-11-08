@@ -71,11 +71,15 @@ export const Timeline: React.FC<TimelineProps> = ({
           >
             {isPlaying ? (
               <>
-                <span>⏸</span> Тоқтату
+                <span className="timeline-play-icon">⏸</span>
+                <span className="timeline-play-text-full">Тоқтату</span>
+                <span className="timeline-play-text-mobile">Кідірту</span>
               </>
             ) : (
               <>
-                <span>▶</span> Тарихты бастау
+                <span className="timeline-play-icon">▶</span>
+                <span className="timeline-play-text-full">Тарихты бастау</span>
+                <span className="timeline-play-text-mobile">Ойнату</span>
               </>
             )}
           </button>
@@ -105,7 +109,8 @@ export const Timeline: React.FC<TimelineProps> = ({
             checked={showAllEvents}
             onChange={(e) => onToggleShowAllEvents(e.target.checked)}
           />
-          <span>Барлық оқиғаларды көрсету</span>
+          <span className="timeline-all-text-full">Барлық оқиғаларды көрсету</span>
+          <span className="timeline-all-text-mobile">Барлық оқиғалар</span>
         </label>
       </div>
 
