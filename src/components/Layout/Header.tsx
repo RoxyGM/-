@@ -10,6 +10,7 @@ interface HeaderProps {
   searchQuery: string;
   onSearchQueryChange: (q: string) => void;
   onToggleFilters: () => void;
+  isFiltersOpen?: boolean;
 }
 
 export function Header({
@@ -20,6 +21,7 @@ export function Header({
   searchQuery,
   onSearchQueryChange,
   onToggleFilters,
+  isFiltersOpen = false,
 }: HeaderProps) {
   const [localQuery, setLocalQuery] = useState('');
   const [focused, setFocused] = useState(false);
@@ -121,7 +123,15 @@ export function Header({
           Жоба туралы
         </button>
         {view === 'map' && (
-          <button type="button" className="header__filters-toggle" onClick={onToggleFilters}>
+          <button
+            type="button"
+            className={`header__filters-toggle ${isFiltersOpen ? 'is-active' : ''}`}
+            onClick={onToggleFilters}
+            title={isFiltersOpen ? 'Сүзгілерді жасыру' : 'Сүзгілерді көрсету'}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+            </svg>
             Сүзгілер
           </button>
         )}

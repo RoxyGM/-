@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { HistoricalEvent } from '../../types';
+import './BattlesList.css';
 
 interface BattlesListProps {
   events: HistoricalEvent[];
@@ -16,7 +17,7 @@ export const BattlesList: React.FC<BattlesListProps> = ({ events = [], onSelectE
     if (filterType === 'battle') {
       return e.type === 'battle' || e.category === 'battle' || !e.type; // если тип не указан, считаем битвой
     }
-    return e.type === filterType;
+    return e.type === filterType || e.category === filterType;
   });
 
   // Сортировка по году
@@ -27,62 +28,119 @@ export const BattlesList: React.FC<BattlesListProps> = ({ events = [], onSelectE
   });
 
   return (
-    <div className="max-w-5xl mx-auto p-6 text-amber-50 h-full overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="battles-list-view">
+      {/* Шапка списка */}
+      <div className="battles-list__header">
         <div>
-          <h2 className="text-2xl font-serif font-bold text-amber-200">Барлық шайқастар мен оқиғалар</h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Дерекқордағы оқиғалардың толық тізімі (Барлығы: {sorted.length})
+          <h2 className="battles-list__title">Барлық шайқастар мен тарихи оқиғалар</h2>
+          <p className="battles-list__subtitle">
+            Қазақ хандығы мен дала мемлекеттерінің шешуші қақтығыстары (Барлығы: {sorted.length})
           </p>
         </div>
         <button
           type="button"
           onClick={() => setSortAsc(!sortAsc)}
-          className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-xs text-amber-300 hover:bg-slate-700 cursor-pointer"
+          className="battles-list__sort-btn"
+          title="Жыл бойынша сұрыптау"
         >
-          Жыл {sortAsc ? '↑' : '↓'}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m3 16 4 4 4-4" />
+            <path d="M7 20V4" />
+            <path d="m21 8-4-4-4 4" />
+            <path d="M17 4v16" />
+          </svg>
+          Жыл бойынша {sortAsc ? '↑ (ертеден)' : '↓ (кейіннен)'}
         </button>
       </div>
 
-      <div className="flex gap-2 mb-6">
-        <button
-          type="button"
-          onClick={() => setFilterType('all')}
-          className={`px-3 py-1 rounded-full text-xs cursor-pointer ${
-            filterType === 'all' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-          }`}
-        >
-          Барлығы
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilterType('battle')}
-          className={`px-3 py-1 rounded-full text-xs cursor-pointer ${
-            filterType === 'battle' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-          }`}
-        >
-          Шайқас
-        </button>
+      {/* Панель фильтров категорий */}
+      <div className="battles-list__toolbar">
+        <div className="battles-list__chips">
+          <button
+            type="button"
+            onClick={() => setFilterType('all')}
+            className={`battles-list__chip ${filterType === 'all' ? 'is-active' : ''}`}
+          >
+            Барлығы
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterType('battle')}
+            className={`battles-list__chip ${filterType === 'battle' ? 'is-active' : ''}`}
+          >
+            ⚔️ Шайқастар
+          </button>
+        </div>
       </div>
 
+      {/* Сетка карточек событий */}
       {sorted.length === 0 ? (
-        <div className="text-center py-12 text-slate-500">
-          Оқиғалар табылмады
+        <div className="battles-list__empty">
+          <p>Сүзгі бойынша сәйкес келетін оқиғалар табылмады</p>
         </div>
       ) : (
-        <div className="space-y-2 pb-10">
+        <div className="battles-list__grid">
           {sorted.map((e: any, idx) => (
-            <div
+            <article
               key={e.id || idx}
               onClick={() => onSelectEvent(e)}
-              className="flex items-center justify-between p-3 bg-slate-900/60 border border-slate-800 rounded-lg hover:border-amber-500/50 cursor-pointer transition-colors"
+              className="battles-card transition-all duration-300 hover:border-amber-500/50 hover:-translate-y-1"
             >
-              <div className="flex items-center gap-4">
-                <span className="font-mono text-amber-400 font-bold w-16 shrink-0">{e.year} ж.</span>
-                <span className="text-amber-100 font-medium">{e.name || e.title || 'Атаусыз оқиға'}</span>
+              {/* Верхняя строка: бейдж даты и локация */}
+              <div className="battles-card__top">
+                <div className="battles-card__badges">
+                  <span className="battles-card__date-badge">
+                    <span className="battles-card__date-dot" />
+                    {e.dateLabel || `${e.year} жыл`}
+                  </span>
+                </div>
+                {e.location && (
+                  <span className="battles-card__location" title={e.location}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-gold)' }}>
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    {e.location}
+                  </span>
+                )}
               </div>
-              <span className="text-xs text-slate-400 shrink-0 ml-2">{e.location || e.place || ''}</span>
-            </div>
+
+              {/* Название события: крупнее и контрастнее */}
+              <h3 className="battles-card__title">
+                {e.name || e.title || 'Атаусыз оқиға'}
+              </h3>
+
+              {/* Краткое описание */}
+              {e.description && (
+                <p className="battles-card__description">
+                  {e.description}
+                </p>
+              )}
+
+              {/* Подвал карточки: статус исхода и кнопка перехода на карту */}
+              <div className="battles-card__footer">
+                {e.outcome ? (
+                  <span className={`battles-card__outcome ${
+                    e.outcome === 'Жеңіс'
+                      ? 'battles-card__outcome--win'
+                      : e.outcome === 'Жеңіліс'
+                      ? 'battles-card__outcome--defeat'
+                      : 'battles-card__outcome--draw'
+                  }`}>
+                    {e.outcome}
+                  </span>
+                ) : (
+                  <span />
+                )}
+                <span className="battles-card__action">
+                  Картада көру
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
+            </article>
           ))}
         </div>
       )}

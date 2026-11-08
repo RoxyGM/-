@@ -117,13 +117,6 @@ html, body, #root {
   padding: 0;
 }
 
-.leaflet-container {
-  width: 100% !important;
-  height: 100% !important;
-  background-color: #020617 !important;
-}
-@import 'leaflet/dist/leaflet.css';
-
 html, body, #root, .app {
   height: 100vh !important;
   width: 100vw !important;

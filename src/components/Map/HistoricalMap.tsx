@@ -2,18 +2,9 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import type { HistoricalEvent, HistoricalTerritory } from '../../types';
 import { HISTORICAL_TERRITORIES } from '../../data/territories';
-
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
+import './HistoricalMap.css';
 
 function MapResizeHandler() {
   const map = useMap();
@@ -46,6 +37,22 @@ interface HistoricalMapProps {
   onEventSelect?: (event: HistoricalEvent) => void;
 }
 
+// Создаем кастомную иконку маркера для сражений
+const createBattleIcon = (name: string) => {
+  return L.divIcon({
+    className: 'custom-battle-marker',
+    html: `
+      <div class="battle-pin" title="${name}">
+        <span class="battle-pin-pulse"></span>
+        <span class="battle-pin-icon">⚔️</span>
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
+  });
+};
+
 export function HistoricalMap({ events, selectedYear, onEventSelect }: HistoricalMapProps) {
   const activeTerritories = (HISTORICAL_TERRITORIES || []).filter((territory) => {
     const rawTerritory = territory as HistoricalTerritory & {
@@ -58,53 +65,64 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
   });
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      {/* Превращает стандартную светлую карту в стильный тёмный режим без сторонних ключей */}
-      <style>
-        {`
-          .leaflet-tile-pane {
-            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-          }
-        `}
-      </style>
-
+    <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: '#020617' }}>
       <MapContainer
         center={[48.0196, 66.9237]}
         zoom={5}
-        style={{ height: '100%', width: '100%', backgroundColor: '#020617' }}
+        attributionControl={false}
+        style={{ height: '100%', width: '100%', backgroundColor: '#090d16' }}
       >
         <MapResizeHandler />
 
+        {/* Бесплатный темный слой Esri World Dark Gray Base без подписей и без API-ключа */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+          maxZoom={18}
+          maxNativeZoom={16}
         />
 
+        {/* Исторические территории с контрастными границами и полупрозрачным фоном */}
         {activeTerritories.map((territory) => {
           if (!territory.geojson) return null;
+
+          const baseColor = territory.color || '#eab308';
+          const fillOpacity = Math.min(0.5, Math.max(0.32, (territory.fillOpacity ?? 0.3) * 1.15));
 
           return (
             <GeoJSON
               key={`${territory.id}-${selectedYear}`}
               data={territory.geojson as any}
               style={{
-                color: territory.color || '#3B82F6',
-                weight: 2,
-                fillColor: territory.color || '#3B82F6',
-                fillOpacity: territory.fillOpacity ?? 0.3,
+                color: baseColor,
+                weight: 2.5,
+                opacity: 0.95,
+                fillColor: baseColor,
+                fillOpacity: fillOpacity,
               }}
             >
               <Popup>
-                <div style={{ color: '#000' }}>
-                  <strong>{territory.name}</strong>
-                  <br />
-                  <small>Билеушілері: {territory.rulers}</small>
+                <div className="historical-popup">
+                  <h4 className="historical-popup__title">{territory.name}</h4>
+                  {territory.capital && (
+                    <div className="historical-popup__row">
+                      <span className="historical-popup__label">Астанасы:</span> {territory.capital}
+                    </div>
+                  )}
+                  {territory.rulers && (
+                    <div className="historical-popup__row">
+                      <span className="historical-popup__label">Билеушілері:</span> {territory.rulers}
+                    </div>
+                  )}
+                  <div className="historical-popup__years">
+                    Кезең: {territory.startYear} — {territory.endYear} жж.
+                  </div>
                 </div>
               </Popup>
             </GeoJSON>
           );
         })}
 
+        {/* Маркеры исторических битв и событий с золотистым свечением */}
         {events.map((event) => {
           let coords = event.coordinates;
           if (!coords && event.latitude !== undefined && event.longitude !== undefined) {
@@ -121,13 +139,25 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
             <Marker
               key={event.id}
               position={position}
+              icon={createBattleIcon(event.name)}
               eventHandlers={{
                 click: () => onEventSelect && onEventSelect(event),
               }}
             >
               <Popup>
-                <div style={{ color: '#000' }}>
-                  <strong>{event.name}</strong> ({event.year} ж.)
+                <div className="historical-popup">
+                  <div className="historical-popup__year-badge">{event.year} ж.</div>
+                  <h4 className="historical-popup__title">{event.name}</h4>
+                  {event.location && (
+                    <div className="historical-popup__row">
+                      <span className="historical-popup__label">Орны:</span> {event.location}
+                    </div>
+                  )}
+                  {event.outcome && (
+                    <div className="historical-popup__outcome">
+                      Нәтижесі: <strong>{event.outcome}</strong>
+                    </div>
+                  )}
                 </div>
               </Popup>
             </Marker>

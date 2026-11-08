@@ -37,78 +37,106 @@ export const Timeline: React.FC<TimelineProps> = ({
     };
   }, [isPlaying, selectedYear, maxYear, minYear, onYearChange]);
 
+  const rawPercent = ((selectedYear - minYear) / (maxYear - minYear)) * 100;
+  const progressPercent = Math.max(2.5, Math.min(97.5, rawPercent));
+
   return (
-    <div className="timeline-container relative z-[1000] p-4 bg-slate-900/90 border border-amber-900/40 rounded-xl backdrop-blur-md text-amber-100">
-      <div className="flex items-center justify-between gap-4 mb-2">
-        <div className="flex items-center gap-2">
+    <div className="timeline-container">
+      {/* Верхняя строка управления */}
+      <div className="timeline-top-row">
+        <div className="timeline-controls-group">
           <button
             type="button"
             onClick={() => onYearChange(Math.max(minYear, selectedYear - 10))}
-            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+            className="timeline-step-btn"
+            title="10 жыл бұрын"
+            aria-label="10 жыл бұрын"
           >
             «
           </button>
           <button
             type="button"
             onClick={() => onYearChange(Math.max(minYear, selectedYear - 1))}
-            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+            className="timeline-step-btn"
+            title="1 жыл бұрын"
+            aria-label="1 жыл бұрын"
           >
             ‹
           </button>
           <button
             type="button"
             onClick={onTogglePlay}
-            className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded flex items-center gap-2 text-sm"
+            className={`timeline-play-btn ${isPlaying ? 'is-playing' : ''}`}
+            title={isPlaying ? 'Тоқтату' : 'Ойнату'}
           >
-            {isPlaying ? '⏸ Тоқтату' : '▶ Тарихты бастау'}
+            {isPlaying ? (
+              <>
+                <span>⏸</span> Тоқтату
+              </>
+            ) : (
+              <>
+                <span>▶</span> Тарихты бастау
+              </>
+            )}
           </button>
           <button
             type="button"
             onClick={() => onYearChange(Math.min(maxYear, selectedYear + 1))}
-            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+            className="timeline-step-btn"
+            title="1 жыл кейін"
+            aria-label="1 жыл кейін"
           >
             ›
           </button>
           <button
             type="button"
             onClick={() => onYearChange(Math.min(maxYear, selectedYear + 10))}
-            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs"
+            className="timeline-step-btn"
+            title="10 жыл кейін"
+            aria-label="10 жыл кейін"
           >
             »
           </button>
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+        <label className="timeline-all-toggle">
           <input
             type="checkbox"
             checked={showAllEvents}
             onChange={(e) => onToggleShowAllEvents(e.target.checked)}
-            className="rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500"
           />
-          Барлық оқиғаларды көрсету
+          <span>Барлық оқиғаларды көрсету</span>
         </label>
       </div>
 
-      <div className="relative pt-6">
+      {/* Зона слайдера с бейджем текущего года и диапазоном */}
+      <div className="timeline-slider-area">
         <div
-          className="absolute -top-1 transform -translate-x-1/2 bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-bold text-xs shadow-md"
+          className="timeline-year-bubble"
           style={{
-            left: `${((selectedYear - minYear) / (maxYear - minYear)) * 100}%`,
+            left: `${progressPercent}%`,
           }}
         >
-          {selectedYear} ж.
+          <span>{selectedYear} жыл</span>
         </div>
+
         <input
           type="range"
           min={minYear}
           max={maxYear}
           value={selectedYear}
           onChange={(e) => onYearChange(Number(e.target.value))}
-          className="w-full accent-amber-400 bg-slate-800 h-2 rounded-lg cursor-pointer"
+          className="timeline-range-input"
+          aria-label="Тарихи жылды таңдау"
         />
-        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-          <span>{minYear}</span>
-          <span>{maxYear}</span>
+
+        <div className="timeline-bounds">
+          <span className="timeline-bound-badge">
+            {minYear} ж.
+          </span>
+          <span className="timeline-bound-badge">
+            {maxYear} ж.
+          </span>
         </div>
       </div>
     </div>

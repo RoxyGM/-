@@ -10,14 +10,13 @@ import { AboutPanel } from './components/AboutPanel/AboutPanel';
 import { BattlesList } from './components/BattlesList/BattlesList';
 import type { HistoricalEvent } from './types';
 import './App.css';
-import { Analytics } from '@vercel/analytics/react';
 
 type View = 'map' | 'list' | 'about';
 
 function App() {
   const store = useHistoricalData();
   const [view, setView] = useState<View>('map');
-  const [filtersOpen, setFiltersOpen] = useState(false); // На мобилках фильтры по умолчанию лучше закрыть
+  const [filtersOpen, setFiltersOpen] = useState(window.innerWidth >= 768);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Автоматически закрываем фильтры на экранах меньше 768px при старте
@@ -44,19 +43,21 @@ function App() {
         searchQuery={store.searchQuery}
         onSearchQueryChange={store.setSearchQuery}
         onToggleFilters={() => setFiltersOpen((v) => !v)}
+        isFiltersOpen={filtersOpen}
       />
 
       <main style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', width: '100%', height: 'calc(100dvh - 64px)' }}>
         {view === 'map' && (
           <div style={{ display: 'flex', width: '100%', height: '100%', position: 'relative' }}>
-            {/* FilterPanel поверх карты для мобилок */}
+            {/* FilterPanel парит над картой с размытием и скруглением справа */}
             <div style={{
-              zIndex: 30,
-              position: window.innerWidth < 768 ? 'absolute' : 'relative',
-              top: 0,
+              zIndex: 35,
+              position: 'absolute',
+              top: '16px',
               left: 0,
-              height: '100%',
-              maxHeight: '100%'
+              maxHeight: 'calc(100% - 32px)',
+              pointerEvents: filtersOpen ? 'auto' : 'none',
+              display: 'flex',
             }}>
               <FilterPanel store={store} open={filtersOpen} onClose={() => setFiltersOpen(false)} />
             </div>
@@ -69,7 +70,7 @@ function App() {
                 onEventSelect={handleSelectEvent}
               />
 
-              <Legend territories={[]} />
+              <Legend territories={store.visibleTerritories || []} />
 
               {/* Адаптированный Timeline под мобилки */}
               <div style={{
@@ -113,7 +114,6 @@ function App() {
           </div>
         )}
       </main>
-      <Analytics />
     </div>
   );
 }
