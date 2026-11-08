@@ -22,7 +22,7 @@ export const AboutPanel: React.FC = () => {
       </ul>
 
       <div style={{ marginTop: '32px', paddingTop: '16px', borderTop: '1px solid #334155', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
-        © 2024 Қазақ тарихының атласы. Барлық құқықтар қорғалған.
+        © 2026 Қазақ тарихының атласы. Барлық құқықтар қорғалған.
       </div>
     </div>
   );
