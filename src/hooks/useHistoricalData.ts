@@ -42,24 +42,26 @@ export function useHistoricalData() {
   const setSelectedYear = useCallback((year: number | ((prev: number) => number)) => {
     _setSelectedYear((prevYear) => {
       const nextYear = typeof year === 'function' ? year(prevYear) : year;
-      
-      // Обновляем URL в строке браузера
-      const params = new URLSearchParams(window.location.search);
-      params.set('year', nextYear.toString());
-      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-      
       // Рассылаем событие обновления всем инстансам хука
       window.dispatchEvent(new CustomEvent('sync_historical_year', { detail: nextYear }));
-      
       return nextYear;
     });
   }, []);
 
+  // Debounced синхронизация URL (чтобы при быстром скролле слайдера браузер не блокировал history.replaceState)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    params.set('year', selectedYear.toString());
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, '', newUrl);
+    const timer = setTimeout(() => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        params.set('year', selectedYear.toString());
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, '', newUrl);
+      } catch (e) {
+        // Игнорируем лимиты браузера на replaceState
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
   }, [selectedYear]);
 
   const toggleState = useCallback((stateId: string) => {

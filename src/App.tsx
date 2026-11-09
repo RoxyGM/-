@@ -8,6 +8,7 @@ import { FilterPanel } from './components/Filters/FilterPanel';
 import { Legend } from './components/Legend/Legend';
 import { AboutPanel } from './components/AboutPanel/AboutPanel';
 import { BattlesList } from './components/BattlesList/BattlesList';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import type { HistoricalEvent } from './types';
 import './App.css';
 
@@ -64,11 +65,13 @@ function App() {
 
             <div style={{ flex: 1, height: '100%', width: '100%', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
 
-              <HistoricalMap
-                events={eventsList}
-                selectedYear={store.selectedYear}
-                onEventSelect={handleSelectEvent}
-              />
+              <ErrorBoundary fallbackTitle="Картаны жүктеу кезінде қате орын алды">
+                <HistoricalMap
+                  events={eventsList}
+                  selectedYear={store.selectedYear}
+                  onEventSelect={handleSelectEvent}
+                />
+              </ErrorBoundary>
 
               <Legend territories={store.visibleTerritories || []} />
 

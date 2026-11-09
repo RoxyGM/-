@@ -6,6 +6,10 @@
   background: linear-gradient(180deg, var(--color-bg-panel), rgba(17, 20, 28, 0.92));
   border-bottom: 1px solid var(--color-border);
   z-index: 40;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .header__brand {
@@ -182,12 +186,18 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 10px 14px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
   .header__subtitle { display: none; }
   .header__search { order: 3; max-width: none; flex-basis: 100%; }
 }
 
 @media (max-width: 640px) {
+  .header {
+    padding: 8px 12px;
+  }
   .header__nav-full {
     display: none;
   }
@@ -198,31 +208,71 @@
 
 @media (max-width: 480px) {
   .header {
-    padding: 8px 10px;
-    gap: 8px;
+    padding: 8px;
+    gap: 6px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   .header__brand {
-    gap: 8px;
+    gap: 6px;
+    min-width: 0;
+    flex-shrink: 1;
   }
   .header__mark svg {
     width: 22px;
     height: 22px;
   }
   .header__title {
-    font-size: 15px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 135px;
   }
   .header__nav {
-    gap: 4px;
+    gap: 3px;
     margin-left: auto;
+    flex-shrink: 0;
   }
   .header__nav button {
-    padding: 6px 9px;
+    padding: 6px 8px;
     font-size: 12px;
-    min-height: 38px;
+    min-height: 36px;
   }
   .header__filters-toggle {
-    padding: 6px 9px;
+    padding: 6px 8px;
     font-size: 12px;
-    min-height: 38px;
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 440px) {
+  .header {
+    padding: 6px 8px;
+  }
+  .header__title {
+    font-size: 13px;
+    max-width: 110px;
+  }
+  .header__nav {
+    gap: 2px;
+  }
+  .header__nav button {
+    padding: 5px 6px;
+    font-size: 11px;
+    min-height: 34px;
+  }
+  .header__filters-text {
+    display: none;
+  }
+  .header__filters-toggle {
+    padding: 6px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 34px;
+    justify-content: center;
   }
 }

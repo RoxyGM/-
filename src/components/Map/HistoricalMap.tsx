@@ -54,7 +54,11 @@ const createBattleIcon = (name: string) => {
 };
 
 export function HistoricalMap({ events, selectedYear, onEventSelect }: HistoricalMapProps) {
-  const activeTerritories = (HISTORICAL_TERRITORIES || []).filter((territory) => {
+  const safeEvents = Array.isArray(events) ? events : [];
+  const safeTerritories = Array.isArray(HISTORICAL_TERRITORIES) ? HISTORICAL_TERRITORIES : [];
+
+  const activeTerritories = safeTerritories.filter((territory) => {
+    if (!territory) return false;
     const rawTerritory = territory as HistoricalTerritory & {
       start_year?: number;
       end_year?: number;
@@ -83,52 +87,58 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
 
         {/* Исторические территории с контрастными границами и полупрозрачным фоном */}
         {activeTerritories.map((territory) => {
-          if (!territory.geojson) return null;
+          if (!territory || !territory.geojson) return null;
 
           const baseColor = territory.color || '#eab308';
           const fillOpacity = Math.min(0.5, Math.max(0.32, (territory.fillOpacity ?? 0.3) * 1.15));
 
-          return (
-            <GeoJSON
-              key={`${territory.id}-${selectedYear}`}
-              data={territory.geojson as any}
-              style={{
-                color: baseColor,
-                weight: 2.5,
-                opacity: 0.95,
-                fillColor: baseColor,
-                fillOpacity: fillOpacity,
-              }}
-            >
-              <Popup>
-                <div className="historical-popup">
-                  <h4 className="historical-popup__title">{territory.name}</h4>
-                  {territory.capital && (
-                    <div className="historical-popup__row">
-                      <span className="historical-popup__label">Астанасы:</span> {territory.capital}
+          try {
+            return (
+              <GeoJSON
+                key={`${territory.id}-${selectedYear}`}
+                data={territory.geojson as any}
+                style={{
+                  color: baseColor,
+                  weight: 2.5,
+                  opacity: 0.95,
+                  fillColor: baseColor,
+                  fillOpacity: fillOpacity,
+                }}
+              >
+                <Popup>
+                  <div className="historical-popup">
+                    <h4 className="historical-popup__title">{territory.name}</h4>
+                    {territory.capital && (
+                      <div className="historical-popup__row">
+                        <span className="historical-popup__label">Астанасы:</span> {territory.capital}
+                      </div>
+                    )}
+                    {territory.rulers && (
+                      <div className="historical-popup__row">
+                        <span className="historical-popup__label">Билеушілері:</span> {territory.rulers}
+                      </div>
+                    )}
+                    <div className="historical-popup__years">
+                      Кезең: {territory.startYear} — {territory.endYear} жж.
                     </div>
-                  )}
-                  {territory.rulers && (
-                    <div className="historical-popup__row">
-                      <span className="historical-popup__label">Билеушілері:</span> {territory.rulers}
-                    </div>
-                  )}
-                  <div className="historical-popup__years">
-                    Кезең: {territory.startYear} — {territory.endYear} жж.
                   </div>
-                </div>
-              </Popup>
-            </GeoJSON>
-          );
+                </Popup>
+              </GeoJSON>
+            );
+          } catch {
+            return null;
+          }
         })}
 
         {/* Маркеры исторических битв и событий с золотистым свечением */}
-        {events.map((event) => {
+        {safeEvents.map((event) => {
+          if (!event) return null;
           let coords = event.coordinates;
           if (!coords && event.latitude !== undefined && event.longitude !== undefined) {
             coords = [event.latitude, event.longitude];
           }
           if (!coords || !Array.isArray(coords) || coords.length < 2) return null;
+          if (typeof coords[0] !== 'number' || typeof coords[1] !== 'number' || isNaN(coords[0]) || isNaN(coords[1])) return null;
 
           const position: [number, number] =
             coords[0] > 50 && coords[1] < 50

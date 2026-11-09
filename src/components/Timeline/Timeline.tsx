@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Timeline.css';
 
 interface TimelineProps {
@@ -22,12 +22,41 @@ export const Timeline: React.FC<TimelineProps> = ({
   minYear = 1200,
   maxYear = 1900,
 }) => {
+  // Локальное состояние для мгновенного (60fps) отклика UI без лагов карты
+  const [localYear, setLocalYear] = useState<number>(selectedYear);
+  const debounceTimerRef = useRef<number | null>(null);
+  const isDraggingRef = useRef<boolean>(false);
   const timerRef = useRef<number | null>(null);
 
+  // Синхронизация при внешнем изменении (например, из URL или автоплея)
+  useEffect(() => {
+    if (!isDraggingRef.current) {
+      setLocalYear(selectedYear);
+    }
+  }, [selectedYear]);
+
+  // Немедленный вызов обновления года (для кнопок шага и автоплея)
+  const commitYear = useCallback(
+    (year: number) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+      setLocalYear(year);
+      onYearChange(year);
+    },
+    [onYearChange]
+  );
+
+  // Автоплей
   useEffect(() => {
     if (isPlaying) {
       timerRef.current = window.setInterval(() => {
-        onYearChange(selectedYear >= maxYear ? minYear : selectedYear + 1);
+        setLocalYear((prev) => {
+          const next = prev >= maxYear ? minYear : prev + 1;
+          onYearChange(next);
+          return next;
+        });
       }, 800);
     } else if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -35,9 +64,41 @@ export const Timeline: React.FC<TimelineProps> = ({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPlaying, selectedYear, maxYear, minYear, onYearChange]);
+  }, [isPlaying, maxYear, minYear, onYearChange]);
 
-  const rawPercent = ((selectedYear - minYear) / (maxYear - minYear)) * 100;
+  // Очистка таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
+
+  // Обработка непрерывного перетаскивания ползунка с debounce ~120мс
+  const handleRangeChange = (val: number) => {
+    isDraggingRef.current = true;
+    setLocalYear(val); // Мгновенно обновляет бейдж и положение ползунка в UI
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = window.setTimeout(() => {
+      onYearChange(val);
+      debounceTimerRef.current = null;
+    }, 120);
+  };
+
+  // Немедленный сброс и фиксация года при отпускании пальца/мыши
+  const handleDragEnd = () => {
+    isDraggingRef.current = false;
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    onYearChange(localYear);
+  };
+
+  const rawPercent = ((localYear - minYear) / (maxYear - minYear)) * 100;
   const progressPercent = Math.max(2.5, Math.min(97.5, rawPercent));
 
   return (
@@ -47,7 +108,7 @@ export const Timeline: React.FC<TimelineProps> = ({
         <div className="timeline-controls-group">
           <button
             type="button"
-            onClick={() => onYearChange(Math.max(minYear, selectedYear - 10))}
+            onClick={() => commitYear(Math.max(minYear, localYear - 10))}
             className="timeline-step-btn"
             title="10 жыл бұрын"
             aria-label="10 жыл бұрын"
@@ -56,7 +117,7 @@ export const Timeline: React.FC<TimelineProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onYearChange(Math.max(minYear, selectedYear - 1))}
+            onClick={() => commitYear(Math.max(minYear, localYear - 1))}
             className="timeline-step-btn"
             title="1 жыл бұрын"
             aria-label="1 жыл бұрын"
@@ -85,7 +146,7 @@ export const Timeline: React.FC<TimelineProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onYearChange(Math.min(maxYear, selectedYear + 1))}
+            onClick={() => commitYear(Math.min(maxYear, localYear + 1))}
             className="timeline-step-btn"
             title="1 жыл кейін"
             aria-label="1 жыл кейін"
@@ -94,7 +155,7 @@ export const Timeline: React.FC<TimelineProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onYearChange(Math.min(maxYear, selectedYear + 10))}
+            onClick={() => commitYear(Math.min(maxYear, localYear + 10))}
             className="timeline-step-btn"
             title="10 жыл кейін"
             aria-label="10 жыл кейін"
@@ -122,15 +183,18 @@ export const Timeline: React.FC<TimelineProps> = ({
             left: `${progressPercent}%`,
           }}
         >
-          <span>{selectedYear} жыл</span>
+          <span>{localYear} жыл</span>
         </div>
 
         <input
           type="range"
           min={minYear}
           max={maxYear}
-          value={selectedYear}
-          onChange={(e) => onYearChange(Number(e.target.value))}
+          value={localYear}
+          onChange={(e) => handleRangeChange(Number(e.target.value))}
+          onMouseUp={handleDragEnd}
+          onTouchEnd={handleDragEnd}
+          onKeyUp={handleDragEnd}
           className="timeline-range-input"
           aria-label="Тарихи жылды таңдау"
         />
