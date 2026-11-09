@@ -126,31 +126,220 @@
   width: 100%;
 }
 
+/* Sources and References Section */
+.about-sources {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-border);
+}
+
+.about-sources__header {
+  margin-bottom: 22px;
+}
+
+.about-sources__title {
+  font-size: 22px;
+  color: var(--color-sand);
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.about-sources__title-icon {
+  font-size: 20px;
+}
+
+.about-sources__intro {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.about-source-block {
+  margin-bottom: 24px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.about-source-block:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.about-source-block__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.about-source-block__icon {
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.about-source-block__heading {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--color-gold-soft);
+  margin: 0;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+.about-source-block__desc {
+  font-size: 13px;
+  color: var(--color-text-faint);
+  margin: 0 0 16px;
+  line-height: 1.55;
+  padding-left: 2px;
+}
+
+.about-source-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-source-item {
+  position: relative;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.about-source-item::before {
+  content: '▸';
+  position: absolute;
+  left: 2px;
+  top: 0;
+  color: var(--color-gold);
+  font-size: 13px;
+}
+
+.about-archive-entity {
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.about-archive-sep {
+  color: var(--color-gold-soft);
+  margin: 0 6px;
+  font-weight: bold;
+}
+
+.about-archive-doc {
+  color: #f1f5f9;
+}
+
+.about-source-placeholder {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(212, 175, 55, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(212, 175, 55, 0.05);
+  font-size: 12.5px;
+  color: var(--color-text-faint);
+  font-style: italic;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.about-source-placeholder-icon {
+  font-style: normal;
+  color: var(--color-gold-soft);
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.about-panel__footer {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
 @media (max-width: 768px) {
   .about-panel {
-    padding: 20px 14px 44px;
+    padding: 18px 12px 40px;
     -webkit-overflow-scrolling: touch;
   }
 
   .about-panel__inner h2 {
     font-size: 22px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .about-panel__inner h3 {
     font-size: 13px;
-    margin: 20px 0 8px;
+    margin: 18px 0 8px;
   }
 
   .about-panel__inner p,
   .about-panel__inner li {
     font-size: 13.5px;
-    line-height: 1.65;
+    line-height: 1.6;
   }
 
   .about-panel__eyebrow {
     font-size: 10px;
     padding: 3px 10px;
+  }
+
+  .about-sources {
+    margin-top: 26px;
+    padding-top: 20px;
+  }
+
+  .about-sources__title {
+    font-size: 18px;
+  }
+
+  .about-source-block {
+    padding: 14px 12px;
+    margin-bottom: 16px;
+    border-radius: var(--radius-sm);
+  }
+
+  .about-source-block__heading {
+    font-size: 14px;
+  }
+
+  .about-source-item {
+    font-size: 13px;
+    line-height: 1.55;
+    padding-left: 16px;
+  }
+
+  .about-source-placeholder {
+    padding: 10px 12px;
+    font-size: 12px;
   }
 }
 
