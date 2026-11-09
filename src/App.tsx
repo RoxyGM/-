@@ -82,6 +82,8 @@ function App() {
                   onYearChange={store.setSelectedYear}
                   isPlaying={isPlaying}
                   onTogglePlay={() => setIsPlaying((value) => !value)}
+                  onPause={() => setIsPlaying(false)}
+                  events={store.activeEvents}
                   showAllEvents={store.showAllEvents}
                   onToggleShowAllEvents={store.setShowAllEvents}
                   minYear={1200}

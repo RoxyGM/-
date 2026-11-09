@@ -95,7 +95,7 @@ export function HistoricalMap({ events, selectedYear, onEventSelect }: Historica
           try {
             return (
               <GeoJSON
-                key={`${territory.id}-${selectedYear}`}
+                key={territory.id}
                 data={territory.geojson as any}
                 style={{
                   color: baseColor,

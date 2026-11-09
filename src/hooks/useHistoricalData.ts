@@ -116,8 +116,31 @@ export function useHistoricalData() {
     });
   }, [selectedYear, selectedStateIds]);
 
+  // Все активные события с учетом фильтра государств и поиска (для таймлайна и автоплея)
+  const activeEvents = useMemo(() => {
+    return HISTORICAL_EVENTS.filter((event) => {
+      const hasMatchingState =
+        !event.stateIds ||
+        event.stateIds.length === 0 ||
+        event.stateIds.some((id) => selectedStateIds.includes(id));
+
+      if (!hasMatchingState) return false;
+
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const name = (event.name || (event as any).title || '').toLowerCase();
+        const loc = (event.location || '').toLowerCase();
+        const desc = (event.description || '').toLowerCase();
+        return name.includes(query) || loc.includes(query) || desc.includes(query);
+      }
+
+      return true;
+    });
+  }, [selectedStateIds, searchQuery]);
+
   return {
     events: HISTORICAL_EVENTS,
+    activeEvents,
     selectedYear,
     setSelectedYear,
     searchQuery,

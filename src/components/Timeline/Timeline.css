@@ -143,7 +143,7 @@
   align-items: center;
   gap: 5px;
   z-index: 10;
-  transition: left 0.06s linear;
+  transition: left 0.05s linear;
 }
 
 .timeline-year-bubble::after {

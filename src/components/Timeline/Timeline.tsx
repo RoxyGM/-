@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import type { HistoricalEvent } from '../../types';
+import { HISTORICAL_EVENTS } from '../../data/events';
 import './Timeline.css';
 
 interface TimelineProps {
@@ -6,6 +8,8 @@ interface TimelineProps {
   onYearChange: (year: number) => void;
   isPlaying: boolean;
   onTogglePlay: () => void;
+  onPause?: () => void;
+  events?: HistoricalEvent[];
   showAllEvents: boolean;
   onToggleShowAllEvents: (show: boolean) => void;
   minYear?: number;
@@ -17,6 +21,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   onYearChange,
   isPlaying,
   onTogglePlay,
+  onPause,
+  events,
   showAllEvents,
   onToggleShowAllEvents,
   minYear = 1200,
@@ -28,12 +34,32 @@ export const Timeline: React.FC<TimelineProps> = ({
   const isDraggingRef = useRef<boolean>(false);
   const timerRef = useRef<number | null>(null);
 
-  // Синхронизация при внешнем изменении (например, из URL или автоплея)
+  // Множество годов, в которых происходили битвы/события
+  const eventYearsSet = useMemo(() => {
+    const list = events && events.length > 0 ? events : HISTORICAL_EVENTS;
+    const years = new Set<number>();
+    for (const ev of list) {
+      if (ev && typeof ev.year === 'number') {
+        years.add(ev.year);
+      }
+    }
+    return years;
+  }, [events]);
+
+  const pauseAutoplay = useCallback(() => {
+    if (onPause) {
+      onPause();
+    } else {
+      onTogglePlay();
+    }
+  }, [onPause, onTogglePlay]);
+
+  // Синхронизация при внешнем изменении (например, из URL или фильтров)
   useEffect(() => {
-    if (!isDraggingRef.current) {
+    if (!isDraggingRef.current && !isPlaying) {
       setLocalYear(selectedYear);
     }
-  }, [selectedYear]);
+  }, [selectedYear, isPlaying]);
 
   // Немедленный вызов обновления года (для кнопок шага и автоплея)
   const commitYear = useCallback(
@@ -48,23 +74,79 @@ export const Timeline: React.FC<TimelineProps> = ({
     [onYearChange]
   );
 
-  // Автоплей
+  // Автоплей: скорость 50 мс на год с автоматической паузой на годах с битвами
   useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = window.setInterval(() => {
-        setLocalYear((prev) => {
-          const next = prev >= maxYear ? minYear : prev + 1;
-          onYearChange(next);
-          return next;
-        });
-      }, 800);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
+    if (!isPlaying) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
     }
+
+    // 2. Если пользователь уже находится на maxYear (1900 ж.) и нажимает Play:
+    // сбрасываемся на начальный год (minYear) и запускаем воспроизведение заново
+    let current = localYear;
+    if (current >= maxYear) {
+      current = minYear;
+      setLocalYear(current);
+      onYearChange(current);
+
+      if (eventYearsSet.has(current)) {
+        pauseAutoplay();
+        return;
+      }
+    } else if (eventYearsSet.has(current)) {
+      // Если воспроизведение запускается с года, где уже есть битва,
+      // сразу шагаем на следующий год (selectedYear + 1), чтобы не застревать на паузе
+      current = current + 1;
+      setLocalYear(current);
+      onYearChange(current);
+
+      // Если и следующий год сразу содержит другую битву, делаем паузу на ней
+      if (eventYearsSet.has(current)) {
+        pauseAutoplay();
+        return;
+      }
+    }
+
+    timerRef.current = window.setInterval(() => {
+      setLocalYear((prev) => {
+        const next = prev + 1;
+
+        // 1. Когда автоплей доходит до 1900 года (maxYear), останавливаемся на нем
+        if (next >= maxYear) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          onYearChange(maxYear);
+          pauseAutoplay();
+          return maxYear;
+        }
+
+        onYearChange(next);
+
+        // Как только доходим до года с битвой — ставим автоплей на паузу
+        if (eventYearsSet.has(next)) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          pauseAutoplay();
+        }
+
+        return next;
+      });
+    }, 50);
+
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [isPlaying, maxYear, minYear, onYearChange]);
+  }, [isPlaying, maxYear, minYear, onYearChange, eventYearsSet, pauseAutoplay]);
 
   // Очистка таймера при размонтировании
   useEffect(() => {
