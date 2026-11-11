@@ -57,6 +57,62 @@
   transform: translateY(0);
 }
 
+/* Battle Navigation Buttons («Алдыңғы шайқас» / «Келесі шайқас») */
+.timeline-battle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 8px;
+  color: #fde047;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.timeline-battle-btn:hover:not(:disabled) {
+  background: rgba(51, 65, 85, 0.95);
+  color: #ffffff;
+  border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
+  transform: translateY(-1px);
+}
+
+.timeline-battle-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.timeline-battle-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(51, 65, 85, 0.5);
+  color: #64748b;
+  transform: none;
+  box-shadow: none;
+}
+
+.timeline-battle-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.timeline-battle-arrow {
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.timeline-battle-text-short {
+  display: none;
+}
+
 /* Play/Pause Button */
 .timeline-play-btn {
   display: inline-flex;
@@ -234,6 +290,19 @@
   display: none;
 }
 
+@media (max-width: 992px) {
+  .timeline-battle-text-full {
+    display: none;
+  }
+  .timeline-battle-text-short {
+    display: inline;
+  }
+  .timeline-battle-btn {
+    padding: 0 8px;
+    font-size: 11.5px;
+  }
+}
+
 @media (max-width: 768px) {
   .timeline-container {
     padding: 10px 12px 12px;
@@ -246,6 +315,11 @@
   }
   .timeline-controls-group {
     gap: 4px;
+  }
+  .timeline-battle-btn {
+    height: 36px;
+    min-height: 36px;
+    padding: 0 7px;
   }
   .timeline-step-btn {
     width: 36px;
@@ -292,6 +366,21 @@
   .timeline-range-input::-moz-range-thumb {
     width: 24px;
     height: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .timeline-battle-text-full,
+  .timeline-battle-text-short {
+    display: none;
+  }
+  .timeline-battle-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    gap: 1px;
   }
 }
 

@@ -32,6 +32,13 @@ function App() {
     setView('map');
   };
 
+  const handleBattleNav = (event: HistoricalEvent) => {
+    // Егер оқиға карточкасы ашық тұрса, оны жаңа шайқасқа жаңартамыз
+    if (store.selectedEvent) {
+      store.setSelectedEvent(event);
+    }
+  };
+
   const eventsList = store.filteredEvents || [];
 
   return (
@@ -84,6 +91,7 @@ function App() {
                   onTogglePlay={() => setIsPlaying((value) => !value)}
                   onPause={() => setIsPlaying(false)}
                   events={store.activeEvents}
+                  onSelectEvent={handleBattleNav}
                   showAllEvents={store.showAllEvents}
                   onToggleShowAllEvents={store.setShowAllEvents}
                   minYear={1200}

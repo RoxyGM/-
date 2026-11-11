@@ -10,6 +10,7 @@ interface TimelineProps {
   onTogglePlay: () => void;
   onPause?: () => void;
   events?: HistoricalEvent[];
+  onSelectEvent?: (event: HistoricalEvent) => void;
   showAllEvents: boolean;
   onToggleShowAllEvents: (show: boolean) => void;
   minYear?: number;
@@ -23,6 +24,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   onTogglePlay,
   onPause,
   events,
+  onSelectEvent,
   showAllEvents,
   onToggleShowAllEvents,
   minYear = 1200,
@@ -45,6 +47,34 @@ export const Timeline: React.FC<TimelineProps> = ({
     }
     return years;
   }, [events]);
+
+  // Отсортированный список всех событий / битв по годам
+  const sortedBattleEvents = useMemo(() => {
+    const list = events && events.length > 0 ? events : HISTORICAL_EVENTS;
+    return [...list]
+      .filter((ev) => ev && typeof ev.year === 'number')
+      .sort((a, b) => a.year - b.year);
+  }, [events]);
+
+  // Предыдущая битва (год строго меньше localYear)
+  const prevBattle = useMemo(() => {
+    for (let i = sortedBattleEvents.length - 1; i >= 0; i--) {
+      if (sortedBattleEvents[i].year < localYear) {
+        return sortedBattleEvents[i];
+      }
+    }
+    return null;
+  }, [sortedBattleEvents, localYear]);
+
+  // Следующая битва (год строго больше localYear)
+  const nextBattle = useMemo(() => {
+    for (let i = 0; i < sortedBattleEvents.length; i++) {
+      if (sortedBattleEvents[i].year > localYear) {
+        return sortedBattleEvents[i];
+      }
+    }
+    return null;
+  }, [sortedBattleEvents, localYear]);
 
   const pauseAutoplay = useCallback(() => {
     if (onPause) {
@@ -73,6 +103,30 @@ export const Timeline: React.FC<TimelineProps> = ({
     },
     [onYearChange]
   );
+
+  // Переход к предыдущей битве
+  const handlePrevBattle = useCallback(() => {
+    if (!prevBattle) return;
+    if (isPlaying) {
+      pauseAutoplay();
+    }
+    commitYear(prevBattle.year);
+    if (onSelectEvent) {
+      onSelectEvent(prevBattle);
+    }
+  }, [prevBattle, isPlaying, pauseAutoplay, commitYear, onSelectEvent]);
+
+  // Переход к следующей битве
+  const handleNextBattle = useCallback(() => {
+    if (!nextBattle) return;
+    if (isPlaying) {
+      pauseAutoplay();
+    }
+    commitYear(nextBattle.year);
+    if (onSelectEvent) {
+      onSelectEvent(nextBattle);
+    }
+  }, [nextBattle, isPlaying, pauseAutoplay, commitYear, onSelectEvent]);
 
   // Автоплей: скорость 50 мс на год с автоматической паузой на годах с битвами
   useEffect(() => {
@@ -188,6 +242,21 @@ export const Timeline: React.FC<TimelineProps> = ({
       {/* Верхняя строка управления */}
       <div className="timeline-top-row">
         <div className="timeline-controls-group">
+          {/* Предыдущая битва */}
+          <button
+            type="button"
+            onClick={handlePrevBattle}
+            disabled={!prevBattle}
+            className="timeline-battle-btn timeline-battle-btn--prev"
+            title={prevBattle ? `Алдыңғы шайқас: ${prevBattle.name} (${prevBattle.year} ж.)` : 'Алдыңғы шайқас жоқ'}
+            aria-label={prevBattle ? `Алдыңғы шайқас: ${prevBattle.name}` : 'Алдыңғы шайқас жоқ'}
+          >
+            <span className="timeline-battle-arrow">‹</span>
+            <span className="timeline-battle-icon" aria-hidden="true">⚔️</span>
+            <span className="timeline-battle-text-full">Алдыңғы шайқас</span>
+            <span className="timeline-battle-text-short">Шайқас</span>
+          </button>
+
           <button
             type="button"
             onClick={() => commitYear(Math.max(minYear, localYear - 10))}
@@ -243,6 +312,21 @@ export const Timeline: React.FC<TimelineProps> = ({
             aria-label="10 жыл кейін"
           >
             »
+          </button>
+
+          {/* Следующая битва */}
+          <button
+            type="button"
+            onClick={handleNextBattle}
+            disabled={!nextBattle}
+            className="timeline-battle-btn timeline-battle-btn--next"
+            title={nextBattle ? `Келесі шайқас: ${nextBattle.name} (${nextBattle.year} ж.)` : 'Келесі шайқас жоқ'}
+            aria-label={nextBattle ? `Келесі шайқас: ${nextBattle.name}` : 'Келесі шайқас жоқ'}
+          >
+            <span className="timeline-battle-text-full">Келесі шайқас</span>
+            <span className="timeline-battle-text-short">Шайқас</span>
+            <span className="timeline-battle-icon" aria-hidden="true">⚔️</span>
+            <span className="timeline-battle-arrow">›</span>
           </button>
         </div>
 
